@@ -1,0 +1,8 @@
+
+**/obj
+**/bin
+**/.vs
+
+**/Asset
+!**/Asset/.gitignore
+**.user

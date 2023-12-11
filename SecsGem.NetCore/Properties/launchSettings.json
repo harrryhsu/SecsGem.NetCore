@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "SecsGem.NetCore": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:54303;http://localhost:54304"
+    }
+  }
+}
