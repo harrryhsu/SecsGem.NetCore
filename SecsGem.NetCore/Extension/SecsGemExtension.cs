@@ -16,12 +16,6 @@ namespace SecsGem.NetCore.Extension
         {
             var kernel = app.Services.GetRequiredService<SecsGemKernel>();
             var handler = app.Services.GetRequiredService<THandler>() as ISecsGemEventHandler;
-            var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
-
-            lifetime.ApplicationStopping.Register(async () =>
-            {
-                await kernel.Emit(new SecsGemStopEvent());
-            });
 
             kernel.OnEvent += async (sender, e) =>
             {
