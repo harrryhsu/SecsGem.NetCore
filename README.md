@@ -1,3 +1,4 @@
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/harrryhsu/SecsGem.NetCore/docker-image.yml) 
 
 # SecsGem.NetCore
 

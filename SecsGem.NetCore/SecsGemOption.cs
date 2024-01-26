@@ -14,9 +14,6 @@ namespace SecsGem.NetCore
 
         public Action<string> Logger { get; set; } = Console.WriteLine;
 
-        // Determine if kernel should run on server or client mode, Active = true is client mode
-        public bool Active { get; set; } = false;
-
         // T3 (Reply timeout)
         public int T3 { get; set; } = 3000;
 

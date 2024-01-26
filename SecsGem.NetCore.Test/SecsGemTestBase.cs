@@ -22,7 +22,6 @@ namespace SecsGem.NetCore.Test
             _client = new(new SecsGemOption
             {
                 Debug = true,
-                Active = true,
                 Target = target,
                 Logger = (msg) => Console.WriteLine(DateTime.Now.ToString("ss:fff") + " Client " + msg),
             });
@@ -30,7 +29,6 @@ namespace SecsGem.NetCore.Test
             _server = new(new SecsGemOption
             {
                 Debug = true,
-                Active = true,
                 Target = target,
                 Logger = (msg) => Console.WriteLine(DateTime.Now.ToString("ss:fff") + " Server " + msg)
             });
