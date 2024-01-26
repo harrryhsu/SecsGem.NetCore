@@ -1,29 +1,12 @@
 ﻿using SecsGem.NetCore.Buffer;
 using SecsGem.NetCore.Connection;
 using SecsGem.NetCore.Event.Common;
-using SecsGem.NetCore.Feature.Server;
+using SecsGem.NetCore.Handler.Server;
 using SecsGem.NetCore.Hsms;
 using System.Reflection;
 
 namespace SecsGem.NetCore.Handler.Client
 {
-    public enum ErrorCode
-    {
-        UnrecognizedDeviceId = 1,
-
-        UnrecognizedStream = 3,
-
-        UnrecognizedFunction = 5,
-
-        IllegalData = 7,
-
-        TransactionTimeout = 9,
-
-        DataTooLong = 11,
-
-        ConversionTimeout = 13,
-    }
-
     public class SecsGemClientRequestHandler
     {
         private readonly Dictionary<string, Func<SecsGemClientRequestContext, Task>> _handlers = new();
@@ -45,6 +28,27 @@ namespace SecsGem.NetCore.Handler.Client
                         });
                     }
                 });
+        }
+
+        protected async Task UnrecognizedFunction(SecsGemClientRequestContext req)
+        {
+            var writer = new ByteBufferWriter();
+            req.Message.Header.Write(writer);
+            var mhead = writer.ToMemory().ToArray().Skip(4).Take(10).ToArray();
+
+            await req.Kernel.Emit(new SecsGemOrphanMessageEvent
+            {
+                Params = req.Message,
+            });
+
+            await req.ReplyAsync(
+                HsmsMessage.Builder
+                    .Reply(req.Message)
+                    .Stream(9)
+                    .Func((byte)ErrorCode.UnrecognizedFunction)
+                    .Item(new BinDataItem(mhead))
+                    .Build()
+            );
         }
 
         public async Task Handle(SecsGemTcpClient sender, TcpConnection con, SecsGemClient kernel, HsmsMessage message)
@@ -86,47 +90,13 @@ namespace SecsGem.NetCore.Handler.Client
                     }
                     else
                     {
-                        var writer = new ByteBufferWriter();
-                        message.Header.Write(writer);
-                        var mhead = writer.ToMemory().ToArray().Skip(4).Take(10).ToArray();
-
-                        await kernel.Emit(new SecsGemOrphanMessageEvent
-                        {
-                            Params = message,
-                        });
-
-                        await req.ReplyAsync(
-                            HsmsMessage.Builder
-                                .Reply(message)
-                                .Stream(9)
-                                .Func((byte)ErrorCode.UnrecognizedFunction)
-                                .Item(new BinDataItem(mhead))
-                                .Build()
-                        );
+                        await UnrecognizedFunction(req);
                     }
                     break;
 
                 case HsmsMessageType.SelectReq:
-                    if (req.Kernel.Device.CommunicationState == CommunicationStateModel.CommunicationDisconnected)
-                    {
-                        await req.ReplyAsync(
-                            HsmsMessage.Builder
-                                .Reply(message)
-                                .Func(0)
-                                .Type(HsmsMessageType.SelectRsp)
-                                .Build()
-                        );
-                    }
-                    else
-                    {
-                        await req.ReplyAsync(
-                            HsmsMessage.Builder
-                                .Reply(message)
-                                .Func(1)
-                                .Type(HsmsMessageType.SelectRsp)
-                                .Build()
-                        );
-                    }
+                    await UnrecognizedFunction(req);
+
                     break;
 
                 case HsmsMessageType.SeparateReq:
@@ -134,14 +104,7 @@ namespace SecsGem.NetCore.Handler.Client
                     break;
 
                 case HsmsMessageType.DeselectReq:
-                    await req.ReplyAsync(
-                        HsmsMessage.Builder
-                            .Reply(message)
-                            .Func(0)
-                            .Type(HsmsMessageType.DeselectRsp)
-                            .Build()
-                    );
-                    await req.Kernel.Disconnect();
+                    await UnrecognizedFunction(req);
                     break;
 
                 case HsmsMessageType.LinkTestReq:

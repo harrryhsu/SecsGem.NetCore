@@ -74,6 +74,11 @@ namespace SecsGem.NetCore
         {
             try
             {
+                if (e is SecsGemErrorEvent ex)
+                {
+                    _option.DebugLog(ex.ToString());
+                }
+
                 if (OnEvent != null)
                 {
                     _option.DebugLog($"Event emit: {e.Event}");
@@ -101,7 +106,7 @@ namespace SecsGem.NetCore
 
         internal async Task Disconnect()
         {
-            Device.CommunicationState = CommunicationStateModel.CommunicationDisconnected;
+            await SetCommunicationState(CommunicationStateModel.CommunicationDisconnected, true);
             Device.ControlState = ControlStateModel.ControlHostOffLine;
             Device.IsSelected = false;
             if (_host != null)
@@ -111,55 +116,59 @@ namespace SecsGem.NetCore
             }
         }
 
+        internal async Task<bool> SetCommunicationState(CommunicationStateModel state, bool force = false)
+        {
+            if (state == Device.CommunicationState) return true;
+            var evt = await Emit(new SecsGemCommunicationStateChangeEvent
+            {
+                OldState = Device.CommunicationState,
+                NewState = state,
+            });
+            if (evt.Accept || force)
+                Device.CommunicationState = state;
+
+            return evt.Accept;
+        }
+
         private async Task SecsGemClientWorker()
         {
+            await SetCommunicationState(CommunicationStateModel.CommunicationOffline, true);
+
             try
             {
-                try
-                {
-                    var msg = await _tcp.SendAndWaitForReplyAsync(
-                        HsmsMessage.Builder
-                            .Type(HsmsMessageType.SelectReq)
-                            .ReplyTimeout(_option.T7)
-                            .Build(),
-                        _cts.Token
-                    );
-
-                    if (msg.Header.SType != HsmsMessageType.SelectRsp || msg.Header.F != 0)
-                    {
-                        _option.DebugLog("Server rejected select request");
-                        await Emit(new SecsGemErrorEvent
-                        {
-                            Message = "Server rejected select request",
-                        });
-                        return;
-                    }
-
-                    Device.IsSelected = true;
-
-                    await Function.CommunicationEstablish();
-                }
-                catch (TimeoutException)
-                {
-                    _option.DebugLog("Select timeout");
-                    await Emit(new SecsGemErrorEvent
-                    {
-                        Exception = new SecsGemConnectionException("T7 Timeout") { Code = "timer_timeout" },
-                    });
-                    return;
-                }
-
                 while (!_cts.IsCancellationRequested && _tcp.Online)
                 {
-                    await _tcp.SendAndWaitForReplyAsync(
+                    if (!Device.IsSelected)
+                    {
+                        var success = await Function.Select(_cts.Token);
+                        if (success) continue;
+                        await Task.Delay(3000, _cts.Token);
+                    }
+                    else if (Device.CommunicationState == CommunicationStateModel.CommunicationOffline)
+                    {
+                        if (_option.ActiveConnect)
+                        {
+                            var success = await Function.CommunicationEstablish(_cts.Token);
+                            if (success) continue;
+                        }
+
+                        await Task.Delay(3000, _cts.Token);
+                    }
+                    else
+                    {
+                        await _tcp.SendAndWaitForReplyAsync(
                                HsmsMessage.Builder
                                    .Type(HsmsMessageType.LinkTestReq)
                                    .Build(),
                                _cts.Token
                            );
 
-                    await Task.Delay(_option.TLinkTest);
+                        await Task.Delay(_option.TLinkTest, _cts.Token);
+                    }
                 }
+            }
+            catch (OperationCanceledException)
+            {
             }
             catch (SecsGemConnectionException ex)
             {
@@ -194,7 +203,7 @@ namespace SecsGem.NetCore
 
         public async ValueTask DisposeAsync()
         {
-            await Function.Teardown();
+            await Function.Separate();
             await Disconnect();
             _tcp.Dispose();
         }

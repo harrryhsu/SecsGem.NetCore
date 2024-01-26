@@ -92,8 +92,8 @@ namespace SecsGem.NetCore.Handler.Server
 
         public async Task S1F13(SecsGemServerRequestContext req)
         {
-            await req.Kernel.SetCommunicationState(CommunicationStateModel.CommunicationOnline);
-            byte res = 0x0;
+            var success = await req.Kernel.SetCommunicationState(CommunicationStateModel.CommunicationOnline);
+            byte res = (byte)(success ? 0 : 1);
 
             await req.ReplyAsync(
                 HsmsMessage.Builder

@@ -123,7 +123,7 @@ namespace SecsGem.NetCore.Handler.Server
                     break;
 
                 case HsmsMessageType.SelectReq:
-                    if (req.Kernel.Device.CommunicationState == CommunicationStateModel.CommunicationDisconnected)
+                    if (req.Kernel.Device.CommunicationState == CommunicationStateModel.CommunicationOffline)
                     {
                         await req.ReplyAsync(
                             HsmsMessage.Builder

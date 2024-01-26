@@ -13,8 +13,6 @@ namespace SecsGem.NetCore.Test
 
         protected SecsGemServer _server;
 
-        protected bool _controlOnline = true;
-
         [SetUp]
         public virtual async Task Setup()
         {
@@ -22,6 +20,7 @@ namespace SecsGem.NetCore.Test
             _client = new(new SecsGemOption
             {
                 Debug = true,
+                ActiveConnect = true,
                 Target = target,
                 Logger = (msg) => Console.WriteLine(DateTime.Now.ToString("ss:fff") + " Client " + msg),
             });
@@ -36,12 +35,9 @@ namespace SecsGem.NetCore.Test
             await _server.StartAsync();
             await _client.ConnectAsync();
 
-            if (_controlOnline)
-            {
-                await TaskHelper.WaitFor(() => _client.Device.IsCommunicationOnline && _server.Device.IsCommunicationOnline, 10, 50);
-                _server.Device.ControlState.State = ControlStateModel.ControlHostOffLine;
-                await _client.Function.ControlOnline();
-            }
+            await TaskHelper.WaitFor(() => _client.Device.IsCommunicationOnline && _server.Device.IsCommunicationOnline, 10, 50);
+            _server.Device.ControlState.State = ControlStateModel.ControlHostOffLine;
+            await _client.Function.ControlOnline();
         }
 
         [TearDown]

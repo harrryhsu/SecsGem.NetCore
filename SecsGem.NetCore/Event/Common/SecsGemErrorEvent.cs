@@ -7,5 +7,10 @@
         public SecsGemException Exception { get; set; }
 
         public override SecsGemEventType Event => SecsGemEventType.Error;
+
+        public override string ToString()
+        {
+            return $"{Message} {Exception?.ToString()}";
+        }
     }
 }

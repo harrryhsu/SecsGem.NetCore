@@ -19,7 +19,7 @@ Only the below feature is supported and not all function of the below feature is
 
 
 
-## Usage
+## SecsGemServer Usage
 
 The library was designed to be used with Asp.NetCore Web Application.
 
@@ -31,7 +31,7 @@ The library was designed to be used with Asp.NetCore Web Application.
 
 However it is also possible to access it by directly creating an instance, you will have to handle event category manually.
 
-    var secsgem = new SecsGemKernel(new SecsGemOption { Target = new(IPAddress.Any, 5000) });
+    var secsgem = new SecsGemServer(new SecsGemOption { Target = new(IPAddress.Any, 5000) });
     secsgem.OnEvent += async (sender, evt) =>
     {
     };
@@ -44,9 +44,9 @@ The event handler will define all interation the equipment needed to operate Sec
 
     public class CustomSecsGemHandler : ISecsGemEventHandler
     {
-        private readonly SecsGemKernel _kernel;
+        private readonly SecsGemServer _kernel;
 
-        public CustomSecsGemHandler(SecsGemKernel kernel)
+        public CustomSecsGemHandler(SecsGemServer kernel)
         {
             _kernel = kernel;
         }
@@ -84,13 +84,6 @@ The event handler will define all interation the equipment needed to operate Sec
         public async Task CommunicationStateChange(SecsGemCommunicationStateChangeEvent evt)
         {
             Console.WriteLine($"Communication State Change: {evt.NewState}");
-            evt.Return = true;
-        }
-
-        // Control state change for Secs control state Model
-        // Return false to abort transaction
-        public async Task ControlStateChange(SecsGemControlStateChangeEvent evt)
-        {
             evt.Return = true;
         }
 
@@ -140,7 +133,7 @@ The event handler will define all interation the equipment needed to operate Sec
 
 SecsGem interface only provides three active method that you can use to send event to host. 
 
-SecsGemKernel will only send the data if a host is connected and in the state of receving data.
+SecsGemServer will only send the data if a host is connected and in the state of receving data.
 
     // S5F1
     Task<bool> TriggerAlarm(Alarm alarm);
@@ -151,6 +144,9 @@ SecsGemKernel will only send the data if a host is connected and in the state of
     // S6F11
     // GetDataVariable event will be triggered to fill data variables
     Task<bool> SendCollectionEvent(CollectionEvent ce);
+
+    // S5F9
+    Task<bool> NotifyException(DateTime timestamp, string id, string type, string message, string recoveryMessage = "")
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)

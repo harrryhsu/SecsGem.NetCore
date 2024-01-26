@@ -7,6 +7,25 @@ namespace SecsGem.NetCore.Handler.Client
 {
     public class SecsGemClientStreamHandler : ISecsGemClientStreamHandler
     {
+        public async Task S1F13(SecsGemClientRequestContext req)
+        {
+            var success = await req.Kernel.SetCommunicationState(CommunicationStateModel.CommunicationOnline);
+            byte res = (byte)(success ? 0 : 1);
+
+            await req.ReplyAsync(
+                HsmsMessage.Builder
+                    .Reply(req.Message)
+                    .Item(new ListDataItem(
+                        new BinDataItem(res),
+                        new ListDataItem(
+                            new ADataItem(req.Kernel.Device.Model),
+                            new ADataItem(req.Kernel.Device.Revision)
+                        )
+                    ))
+                    .Build()
+            );
+        }
+
         public async Task S5F1(SecsGemClientRequestContext req)
         {
             var id = req.Message.Root[1].GetU4();

@@ -5,7 +5,7 @@ namespace SecsGem.NetCore.Test.Test
     public class DataVariableTest : SecsGemTestBase
     {
         [Test]
-        public async Task Get_Status_Variable()
+        public async Task Get_Data_Variable()
         {
             var v = new DataVariable
             {

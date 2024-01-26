@@ -19,7 +19,41 @@ namespace SecsGem.NetCore.Function
             _tcp = kernel._tcp;
         }
 
-        public async Task Teardown(CancellationToken ct = default)
+        public async Task<bool> Select(CancellationToken ct = default)
+        {
+            var msg = await _tcp.SendAndWaitForReplyAsync(
+                HsmsMessage.Builder
+                    .Type(HsmsMessageType.SelectReq)
+                    .Build(),
+                ct
+            );
+
+            if (msg.Header.SType != HsmsMessageType.SelectRsp || msg.Header.F != 0)
+            {
+                await _kernel.Emit(new SecsGemErrorEvent
+                {
+                    Message = "Server rejected select request",
+                });
+                return false;
+            }
+            else
+            {
+                _kernel.Device.IsSelected = true;
+                return true;
+            }
+        }
+
+        public async Task Deselect(CancellationToken ct = default)
+        {
+            await _tcp.SendAsync(
+                HsmsMessage.Builder
+                    .Type(HsmsMessageType.DeselectReq)
+                    .Build(),
+                ct
+            );
+        }
+
+        public async Task Separate(CancellationToken ct = default)
         {
             try
             {
@@ -34,7 +68,7 @@ namespace SecsGem.NetCore.Function
             catch { }
         }
 
-        public async Task CommunicationEstablish(CancellationToken ct = default)
+        public async Task<bool> CommunicationEstablish(CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -51,12 +85,14 @@ namespace SecsGem.NetCore.Function
                 {
                     Message = "Server rejected communication online request",
                 });
+                return false;
             }
             else
             {
-                _kernel.Device.CommunicationState = CommunicationStateModel.CommunicationOnline;
+                await _kernel.SetCommunicationState(CommunicationStateModel.CommunicationOnline, true);
                 _kernel.Device.Model = msg.Root[1][0].GetString();
                 _kernel.Device.Revision = msg.Root[1][1].GetString();
+                return true;
             }
         }
 

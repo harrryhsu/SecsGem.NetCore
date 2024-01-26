@@ -10,5 +10,7 @@ namespace SecsGem.NetCore.Event.Server
         public CommunicationStateModel OldState { get; set; }
 
         public CommunicationStateModel NewState { get; set; }
+
+        public bool Accept { get; set; } = true;
     }
 }
