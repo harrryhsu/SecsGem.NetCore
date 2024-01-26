@@ -1,35 +1,33 @@
 ﻿using SecsGem.NetCore;
 using SecsGem.NetCore.Connection;
-using SecsGem.NetCore.Hsms;
 using System.Net.Sockets;
 
 namespace TrafficCom.V3.Connection
 {
     public delegate Task OnConnectionEventHandler(SecsGemTcpClient sender, TcpConnection con);
 
-    public class SecsGemTcpServer : SecsGemTcpClient
+    public class SecsGemTcpServer : SecsGemTcpClient, IHostedService
     {
-        private readonly List<TcpConnection> _clients = new();
-
         private readonly TcpListener _server;
 
         public event OnConnectionEventHandler OnConnection;
+
+        public bool IsConnected => _clients.Any();
 
         public SecsGemTcpServer(SecsGemOption option) : base(option)
         {
             _server = new(_option.Target);
         }
 
-        public override Task StartAsync()
+        public void Start()
         {
             Online = true;
             _server.Start();
-            Console.WriteLine($"SecsGem Listening At {_option.Target}");
-            _ = SecsGemServerWorker();
-            return Task.CompletedTask;
+            _option.DebugLog($"SecsGem Listening At {_option.Target}");
+            Task.Run(() => TcpServerWorker(), _cts.Token);
         }
 
-        private async Task SecsGemServerWorker()
+        private async Task TcpServerWorker()
         {
             while (!_cts.IsCancellationRequested)
             {
@@ -44,7 +42,8 @@ namespace TrafficCom.V3.Connection
                     };
                     _clients.Add(con);
                     await OnConnection?.Invoke(this, con);
-                    _ = Task.Run(() => SecsGemClientWorker(con), _cts.Token);
+                    _ = Task.Run(() => TcpClientWorker(con), _cts.Token);
+                    _option.DebugLog($"Client Connected");
                 }
                 catch
                 {
@@ -52,24 +51,28 @@ namespace TrafficCom.V3.Connection
             }
         }
 
-        public override async Task<HsmsMessage> SendAndWaitForReplyAsync(HsmsMessage msg, CancellationToken token)
+        protected override void OnClientDisconnected(TcpConnection con)
         {
-            var client = _clients.FirstOrDefault();
-            if (client == null) throw new SecsGemConnectionException("Client not connected") { Code = "not_connected" };
-            return await SendAndWaitForReplyAsync(client, msg, token);
-        }
-
-        public override async Task SendAsync(HsmsMessage msg, CancellationToken token)
-        {
-            var client = _clients.FirstOrDefault();
-            if (client == null) throw new SecsGemConnectionException("Client not connected") { Code = "not_connected" };
-            await SendAsync(client, msg, token);
+            con.Close();
+            _clients.Remove(con);
         }
 
         public override void Dispose()
         {
-            base.Dispose();
             _server.Stop();
+            base.Dispose();
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            Start();
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            Dispose();
+            return Task.CompletedTask;
         }
     }
 }

@@ -12,6 +12,11 @@ namespace SecsGem.NetCore
 
         public bool Debug { get; set; } = false;
 
+        public Action<string> Logger { get; set; } = Console.WriteLine;
+
+        // Determine if kernel should run on server or client mode, Active = true is client mode
+        public bool Active { get; set; } = false;
+
         // T3 (Reply timeout)
         public int T3 { get; set; } = 3000;
 
@@ -29,5 +34,10 @@ namespace SecsGem.NetCore
 
         // Link Test Interval
         public int TLinkTest { get; set; } = 5000;
+
+        public void DebugLog(string message)
+        {
+            if (Debug) Logger(message);
+        }
     }
 }

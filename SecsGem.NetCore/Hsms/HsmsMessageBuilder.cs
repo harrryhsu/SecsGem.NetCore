@@ -16,6 +16,8 @@
 
         private bool _replyExpected;
 
+        private int? _replyTimeout;
+
         private DataItem _item;
 
         public HsmsMessageBuilder Type(HsmsMessageType type)
@@ -69,6 +71,12 @@
             return this;
         }
 
+        public HsmsMessageBuilder ReplyTimeout(int timeout)
+        {
+            _replyTimeout = timeout;
+            return this;
+        }
+
         public HsmsMessage Build()
         {
             return new HsmsMessage
@@ -83,6 +91,7 @@
                     ReplyExpected = _replyExpected,
                 },
                 Root = _item,
+                ReplyTimeout = _replyTimeout
             };
         }
     }

@@ -11,7 +11,7 @@ namespace SecsGem.NetCore.Connection
 
     public class SecsGemTcpClient : IDisposable
     {
-        protected TcpConnection _client;
+        protected List<TcpConnection> _clients = new();
 
         protected readonly CancellationTokenSource _cts = new();
 
@@ -30,12 +30,12 @@ namespace SecsGem.NetCore.Connection
             _option = option;
         }
 
-        public virtual async Task StartAsync()
+        public async Task<TcpConnection> ConnectAsync()
         {
-            await ConnectAsync(CancellationToken.None);
+            return await ConnectAsync(CancellationToken.None);
         }
 
-        public virtual async Task ConnectAsync(CancellationToken cts)
+        public async Task<TcpConnection> ConnectAsync(CancellationToken cts = default)
         {
             var tcp = new TcpClient();
             try
@@ -47,9 +47,10 @@ namespace SecsGem.NetCore.Connection
                     NetworkStream = tcp.GetStream(),
                     SendBuffer = new byte[_option.TcpBufferSize]
                 };
-                _client = con;
+                _clients.Add(con);
                 Online = true;
-                _ = Task.Run(() => SecsGemClientWorker(con), cts);
+                _ = Task.Run(() => TcpClientWorker(con), cts);
+                return con;
             }
             catch (Exception ex)
             {
@@ -57,100 +58,93 @@ namespace SecsGem.NetCore.Connection
             }
         }
 
-        protected async Task TcpRead(NetworkStream ns, byte[] buffer, int offset, int count, CancellationToken token)
+        protected async Task TcpRead(NetworkStream ns, byte[] buffer, int offset, int count)
         {
-            var read = 0;
-            while (read < count && !token.IsCancellationRequested)
-            {
-                read += await ns.ReadAsync(buffer.AsMemory(offset, count), _cts.Token);
-            }
+            var value = await ns.ReadAsync(buffer.AsMemory(offset, count), _cts.Token);
+            if (value != count) throw new SecsGemConnectionException("T8 Timeout") { Code = "timeout_t8" };
         }
 
-        protected async Task SecsGemClientWorker(TcpConnection con)
+        protected async Task TcpClientWorker(TcpConnection con)
         {
             var buffer = new byte[_option.TcpBufferSize];
             while (!_cts.IsCancellationRequested)
             {
                 try
                 {
-                    await TcpRead(con.NetworkStream, buffer, 0, 4, CancellationToken.None);
+                    con.NetworkStream.ReadTimeout = Timeout.Infinite;
+                    await TcpRead(con.NetworkStream, buffer, 0, 4);
+                    con.NetworkStream.ReadTimeout = _option.T8;
+
                     var size = ByteBufferReader.ReadU4(buffer);
-
-                    var cts = new CancellationTokenSource();
-                    var task = TcpRead(con.NetworkStream, buffer, 4, (int)size, cts.Token);
-                    await Task.WhenAny(task, Task.Delay(_option.T8));
-
-                    if (!task.IsCompleted)
-                    {
-                        cts.Cancel();
-                        OnError?.Invoke(this, new SecsGemConnectionException("T8 Timeout") { Code = "timeout_t8" });
-                        continue;
-                    }
+                    await TcpRead(con.NetworkStream, buffer, 4, (int)size);
 
                     var reader = new ByteBufferReader(buffer);
                     var msg = new HsmsMessage(reader);
 
                     if (_query.ContainsKey(msg.Header.Context))
                     {
+                        _option.DebugLog($"RECV {msg.Header.SType} {msg.ToShortName()}, Setting Result");
                         _query[msg.Header.Context].Task.SetResult(msg);
-                        _query.Remove(msg.Header.Context, out _);
+                        _query.TryRemove(msg.Header.Context, out _);
                     }
                     else
                     {
-                        OnMessageReceived?.Invoke(this, con, msg);
+                        _option.DebugLog($"RECV {msg.Header.SType} {msg.ToShortName()}, Invoking Event");
+                        _ = OnMessageReceived?.Invoke(this, con, msg);
                     }
+                }
+                catch (TimeoutException)
+                {
+                    Array.Clear(buffer);
+                    await con.NetworkStream.FlushAsync();
                 }
                 catch
                 {
-                    con.Close();
-                    _client = null;
-                    return;
+                    break;
                 }
             }
+
+            OnClientDisconnected(con);
         }
 
-        public virtual async Task<HsmsMessage> SendAndWaitForReplyAsync(HsmsMessage msg)
+        protected virtual void OnClientDisconnected(TcpConnection con)
         {
-            return await SendAndWaitForReplyAsync(msg, CancellationToken.None);
+            con.Close();
+            _clients.Remove(con);
+            Online = false;
         }
 
-        public virtual async Task<HsmsMessage> SendAndWaitForReplyAsync(HsmsMessage msg, CancellationToken token)
+        public virtual async Task<HsmsMessage> SendAndWaitForReplyAsync(HsmsMessage msg, CancellationToken token = default)
         {
-            if (_client == null) throw new SecsGemConnectionException("Client not connected") { Code = "not_connected" };
-            return await SendAndWaitForReplyAsync(_client, msg, token);
+            var client = _clients.FirstOrDefault();
+            if (client == null) throw new SecsGemConnectionException("Client not connected") { Code = "not_connected" };
+            return await SendAndWaitForReplyAsync(client, msg, token);
         }
 
-        public virtual async Task<HsmsMessage> SendAndWaitForReplyAsync(TcpConnection con, HsmsMessage msg)
-        {
-            return await SendAndWaitForReplyAsync(con, msg, CancellationToken.None);
-        }
-
-        public virtual async Task<HsmsMessage> SendAndWaitForReplyAsync(TcpConnection con, HsmsMessage msg, CancellationToken token)
+        public virtual async Task<HsmsMessage> SendAndWaitForReplyAsync(TcpConnection con, HsmsMessage msg, CancellationToken token = default)
         {
             var task = new ReplyTask();
             _query[msg.Header.Context] = task;
             await SendAsync(con, msg, token);
 
             if (!msg.ReplyTimeout.HasValue) msg.ReplyTimeout = _option.T3;
-            await Task.WhenAny(
-                task.Task.Task,
-                Task.Delay(msg.ReplyTimeout.Value, token)
-            );
 
-            if (!task.Task.Task.IsCompletedSuccessfully)
+            try
             {
-                _query.Remove(msg.Header.Context, out _);
-                throw new SecsGemTransactionException("Wait For Reply Timeout") { Code = "reply_timeout" };
-            }
-            else
-            {
-                var reply = task.Task.Task.Result;
-                if (msg.Header.SType == HsmsMessageType.DataMessage && (
+                var reply = await task.Task.Task.WaitAsync(TimeSpan.FromMilliseconds(msg.ReplyTimeout.Value), token);
+
+                if (msg.Header.SType == HsmsMessageType.DataMessage && msg.Header.F == 0)
+                {
+                    _option.DebugLog($"Message is aborted T{reply.Header.SType}{reply.ToShortName()}");
+                    throw new SecsGemTransactionException($"Message is aborted T{reply.Header.SType}{reply.ToShortName()}") { Code = "abort" };
+                }
+                else if (msg.Header.SType == HsmsMessageType.DataMessage && (
                     reply.Header.SType != HsmsMessageType.DataMessage ||
                     msg.Header.S != reply.Header.S ||
                     msg.Header.F + 1 != reply.Header.F
                 ))
                 {
+                    _option.DebugLog($"WAIT {msg.Header.SType} {msg.ToShortName()}, Unexpected reply T{reply.Header.SType}{reply.ToShortName()}");
                     throw new SecsGemTransactionException($"Unexpected Reply: T{reply.Header.SType}{reply.ToShortName()}") { Code = "unexpected_reply" };
                 }
                 else
@@ -158,28 +152,35 @@ namespace SecsGem.NetCore.Connection
                     return reply;
                 }
             }
+            catch (TimeoutException)
+            {
+                _option.DebugLog($"WAIT {msg.Header.SType} {msg.ToShortName()}, Timeout");
+                throw new SecsGemTransactionException("Wait For Reply Timeout") { Code = "reply_timeout" };
+            }
+            catch (ObjectDisposedException)
+            {
+                _option.DebugLog($"WAIT {msg.Header.SType} {msg.ToShortName()}, Connection disposed");
+                throw new SecsGemConnectionException("Connection Dispoed") { Code = "disposed" };
+            }
+            finally
+            {
+                _query.TryRemove(msg.Header.Context, out _);
+            }
         }
 
-        public virtual async Task SendAsync(HsmsMessage msg)
+        public virtual async Task SendAsync(HsmsMessage msg, CancellationToken token = default)
         {
-            await SendAsync(msg, CancellationToken.None);
+            var client = _clients.FirstOrDefault();
+            if (client == null) throw new SecsGemConnectionException("Client not connected") { Code = "not_connected" };
+            await SendAsync(client, msg, token);
         }
 
-        public virtual async Task SendAsync(HsmsMessage msg, CancellationToken token)
-        {
-            if (_client == null) throw new SecsGemConnectionException("Client not connected") { Code = "not_connected" };
-            await SendAsync(_client, msg, token);
-        }
-
-        public virtual async Task SendAsync(TcpConnection con, HsmsMessage msg)
-        {
-            await SendAsync(con, msg, CancellationToken.None);
-        }
-
-        public virtual async Task SendAsync(TcpConnection con, HsmsMessage msg, CancellationToken token)
+        public virtual async Task SendAsync(TcpConnection con, HsmsMessage msg, CancellationToken token = default)
         {
             if (!Online) throw new SecsGemConnectionException("Server/Client is not online") { Code = "not_connected" };
             await con.Lock.WaitAsync(token);
+
+            _option.DebugLog($"SEND {msg.Header.SType} {msg.ToShortName()}");
 
             try
             {
@@ -190,10 +191,12 @@ namespace SecsGem.NetCore.Connection
             }
             catch (ObjectDisposedException)
             {
-                throw new SecsGemConnectionException("Client Disconnected") { Code = "not_connected" };
+                _option.DebugLog($"SEND {msg.Header.SType} {msg.ToShortName()}, Connection disposed");
+                throw new SecsGemConnectionException("Connection Disposed") { Code = "disposed" };
             }
             catch (Exception ex)
             {
+                _option.DebugLog($"SEND {msg.Header.SType} {msg.ToShortName()}, Error {ex}");
                 throw new SecsGemConnectionException("Message Send Error", ex);
             }
             finally
@@ -206,7 +209,7 @@ namespace SecsGem.NetCore.Connection
         {
             Online = false;
             _cts.Cancel();
-            if (_client != null) _client.Close();
+            _clients.Clear();
         }
     }
 
