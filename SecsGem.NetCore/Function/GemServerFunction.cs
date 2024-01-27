@@ -128,14 +128,15 @@ namespace SecsGem.NetCore.Function
             return true;
         }
 
-        public async Task<bool> NotifyException(string id, Exception ex, string recoveryMessage, CancellationToken ct = default)
+        public async Task<bool> NotifyException(string id, Exception ex, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default)
         {
-            return await NotifyException(DateTime.Now, id, ex.GetType().Name, ex.Message, recoveryMessage, ct);
+            return await NotifyException(id, ex.GetType().Name, ex.Message, recoveryMessage, timestamp, ct);
         }
 
-        public async Task<bool> NotifyException(DateTime timestamp, string id, string type, string message, string recoveryMessage, CancellationToken ct = default)
+        public async Task<bool> NotifyException(string id, string type, string message, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default)
         {
             if (!_kernel.Device.ControlState.IsControlOnline) return false;
+            if (timestamp == default) timestamp = DateTime.Now;
 
             await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder

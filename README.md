@@ -38,11 +38,11 @@ However it is also possible to access it by directly creating an instance, you w
     await secsgem.StartAsync();
 
 
-The UseSecsGem expect to find a service that implemented ISecsGemEventHandler from service provider, and create a new scope for each event. 
+The UseSecsGem expect to find a service that implemented ISecsGemServerEventHandler from service provider, and create a new scope for each event. 
 
 The event handler will define all interation the equipment needed to operate SecsGem protocol.
 
-    public class CustomSecsGemHandler : ISecsGemEventHandler
+    public class CustomSecsGemHandler : ISecsGemServerEventHandler
     {
         private readonly SecsGemServer _kernel;
 
@@ -131,23 +131,58 @@ The event handler will define all interation the equipment needed to operate Sec
     }
 
 
-SecsGem interface only provides three active method that you can use to send event to host. 
+SecsGem interface only provides four active methods that you can use to send event to host, you can find them in SecsGemServer.Function
 
-SecsGemServer will only send the data if a host is connected and in the state of receving data.
+SecsGemServer will only send the data if server is online.
 
     // S5F1
-    Task<bool> TriggerAlarm(Alarm alarm);
+    Task<bool> TriggerAlarm(uint id, CancellationToken ct = default);
 
     // S10F1
-    Task<bool> SendHostDisplay(byte id, string text);
+    Task<bool> SendHostDisplay(byte id, string text, CancellationToken ct = default);
     
     // S6F11
     // GetDataVariable event will be triggered to fill data variables
-    Task<bool> SendCollectionEvent(CollectionEvent ce);
+    Task<bool> SendCollectionEvent(uint id, CancellationToken ct = default);
 
     // S5F9
-    Task<bool> NotifyException(DateTime timestamp, string id, string type, string message, string recoveryMessage = "")
-## License
+    Task<bool> NotifyException(string id, Exception ex, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default);
 
-[MIT](https://choosealicense.com/licenses/mit/)
+    Task<bool> NotifyException(string id, string type, string message, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default);
+
+
+## SecsGemClient Usage
+
+Client interface is developed for testing purpose, but the actual usage is also supported, all client function is in SecsGemClient.Function
+
+    await using var client = new SecsGemClient(new SecsGemOption
+    {
+        // Network target
+        Target = new IPEndPoint(IPAddress.Parse(ip), port),
+        // Tcp receive buffer size
+        TcpBufferSize = 4096,
+        // Enable debug log through Logger 
+        Debug = false,
+        // If client should initiate S1F13
+        // Can also be initialted by calling SecsGemClient.Function.CommunicationEstablish 
+        ActiveConnect = true, 
+        // Debug logger
+        Logger = (msg) => Console.WriteLine(msg),
+        // Default message timeout
+        T3 = 3000,
+        // Not selected timeout, only has effect for SecsGemServer
+        T7 = 3000,
+        // Byte receive timeout
+        T8 = 500,
+    });
+
+     _client.OnEvent += async (sender, evt) =>
+    {
+        if (evt is SecsGemAlarmEvent nevt)
+        {
+            // Alarm nevt.Alarm triggered
+        }
+    };
+
+    var ecs = await client.Function.EquipmentConstantValueGet();
 

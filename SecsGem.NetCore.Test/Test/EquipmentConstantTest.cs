@@ -26,8 +26,8 @@ namespace SecsGem.NetCore.Test.Test
         [Test]
         public async Task Get_Equipment_Constant()
         {
-            var vs = await _client.Function.GetEquipmentConstantDefinitions();
-            var values = await _client.Function.GetEquipmentConstantValues(new uint[] { EC.Id });
+            var vs = await _client.Function.EquipmentConstantDefinitionGet();
+            var values = await _client.Function.EquipmentConstantValueGet(new uint[] { EC.Id });
 
             Assert.That(vs.Count(), Is.EqualTo(1));
             Assert.That(values.Count(), Is.EqualTo(1));
@@ -61,8 +61,8 @@ namespace SecsGem.NetCore.Test.Test
                 }
             };
 
-            var vs = await _client.Function.GetEquipmentConstantDefinitions();
-            var values = await _client.Function.GetEquipmentConstantValues(new uint[] { EC.Id });
+            var vs = await _client.Function.EquipmentConstantDefinitionGet();
+            var values = await _client.Function.EquipmentConstantValueGet(new uint[] { EC.Id });
 
             Assert.That(vs.Count(), Is.EqualTo(1));
             Assert.That(values.Count(), Is.EqualTo(1));
@@ -85,16 +85,16 @@ namespace SecsGem.NetCore.Test.Test
         [Test]
         public async Task Set_Equipment_Constant()
         {
-            var ack = await _client.Function.SetEquipmentConstants(new List<EquipmentConstant> { new() { Id = EC.Id, Value = -5 } });
+            var ack = await _client.Function.EquipmentConstantSet(new List<EquipmentConstant> { new() { Id = EC.Id, Value = -5 } });
             Assert.That(ack, Is.EqualTo(S2F15_EAC.OneOrMoreValueOutOfRange));
 
-            ack = await _client.Function.SetEquipmentConstants(new List<EquipmentConstant> { new() { Id = EC.Id, Value = 205 } });
+            ack = await _client.Function.EquipmentConstantSet(new List<EquipmentConstant> { new() { Id = EC.Id, Value = 205 } });
             Assert.That(ack, Is.EqualTo(S2F15_EAC.OneOrMoreValueOutOfRange));
 
-            ack = await _client.Function.SetEquipmentConstants(new List<EquipmentConstant> { new() { Id = EC.Id + 1, Value = 10 } });
+            ack = await _client.Function.EquipmentConstantSet(new List<EquipmentConstant> { new() { Id = EC.Id + 1, Value = 10 } });
             Assert.That(ack, Is.EqualTo(S2F15_EAC.OneOrMoreConstantDoNotExist));
 
-            ack = await _client.Function.SetEquipmentConstants(new List<EquipmentConstant> { new() { Id = EC.Id, Value = 50 } });
+            ack = await _client.Function.EquipmentConstantSet(new List<EquipmentConstant> { new() { Id = EC.Id, Value = 50 } });
             Assert.That(ack, Is.EqualTo(S2F15_EAC.Ok));
             Assert.That(_server.Feature.EquipmentConstants.First().Value, Is.EqualTo(50));
         }

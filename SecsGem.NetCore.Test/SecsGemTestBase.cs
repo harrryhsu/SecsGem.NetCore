@@ -35,7 +35,7 @@ namespace SecsGem.NetCore.Test
             await _server.StartAsync();
             await _client.ConnectAsync();
 
-            await TaskHelper.WaitFor(() => _client.Device.IsCommunicationOnline && _server.Device.IsCommunicationOnline, 10, 50);
+            await TaskHelper.WaitFor(() => _client.Device.IsCommunicationOnline && _server.Device.IsCommunicationOnline, 10, 100);
             _server.Device.ControlState.State = ControlStateModel.ControlHostOffLine;
             await _client.Function.ControlOnline();
         }

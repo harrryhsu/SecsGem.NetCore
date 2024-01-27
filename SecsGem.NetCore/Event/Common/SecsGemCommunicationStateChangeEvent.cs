@@ -1,7 +1,6 @@
-﻿using SecsGem.NetCore.Event.Common;
-using SecsGem.NetCore.Feature.Server;
+﻿using SecsGem.NetCore.Feature.Server;
 
-namespace SecsGem.NetCore.Event.Server
+namespace SecsGem.NetCore.Event.Common
 {
     public class SecsGemCommunicationStateChangeEvent : SecsGemEvent
     {

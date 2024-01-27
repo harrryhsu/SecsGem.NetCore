@@ -4,35 +4,53 @@ namespace SecsGem.NetCore
 {
     public class SecsGemOption
     {
+        /// <summary>
+        /// SecsGem target network interface
+        /// </summary>
         public IPEndPoint Target { get; set; } = new(IPAddress.Any, 5000);
 
+        /// <summary>
+        /// Tcp receive buffer size, send buffer is dynamic
+        /// </summary>
         public int TcpBufferSize { get; set; } = 4096;
 
+        /// <summary>
+        /// If client should initiate S1F13,
+        /// Can also be initialted by calling SecsGemClient.Function.CommunicationEstablish
+        /// </summary>
         public bool ActiveConnect { get; set; } = false;
 
+        /// <summary>
+        /// Enable debug log through Logger
+        /// </summary>
         public bool Debug { get; set; } = false;
 
+        /// <summary>
+        /// Debug logger
+        /// </summary>
         public Action<string> Logger { get; set; } = Console.WriteLine;
 
-        // T3 (Reply timeout)
+        /// <summary>
+        /// Message reply timeout
+        /// </summary>
         public int T3 { get; set; } = 3000;
 
-        // T5 (Connection Separation Timeout)
-        //public int T5 { get; set; } = 3000;
-
-        // T6 (Control Transaction Timeout)
-        //public int T6 { get; set; } = 3000;
-
-        // T7 (Not Selected Timeout)
+        /// <summary>
+        /// Not selected timeout, only has effect for SecsGemServer
+        /// </summary>
         public int T7 { get; set; } = 3000;
 
-        // T8  (Byte Recv Timeout)
+        /// <summary>
+        /// Byte Recv Timeout
+        /// </summary>
         public int T8 { get; set; } = 500;
 
-        // Link Test Interval
+        /// <summary>
+        /// Link Test Interval
+        /// </summary>
         public int TLinkTest { get; set; } = 5000;
 
-        public void DebugLog(string message)
+        internal void DebugLog(string message)
         {
             if (Debug) Logger(message);
         }

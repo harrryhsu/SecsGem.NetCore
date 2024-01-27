@@ -146,7 +146,7 @@ namespace SecsGem.NetCore.Function
             return ack;
         }
 
-        public async Task<IEnumerable<StatusVariable>> GetStatusVariableDefinitions(IEnumerable<uint> ids = null, CancellationToken ct = default)
+        public async Task<IEnumerable<StatusVariable>> StatusVariableDefinitionGet(IEnumerable<uint> ids = null, CancellationToken ct = default)
         {
             if (ids == null) ids = Array.Empty<uint>();
 
@@ -173,7 +173,7 @@ namespace SecsGem.NetCore.Function
             return svs;
         }
 
-        public async Task<Dictionary<uint, string>> GetStatusVariableValues(IEnumerable<uint> ids, CancellationToken ct = default)
+        public async Task<Dictionary<uint, string>> StatusVariableValueGet(IEnumerable<uint> ids, CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -193,7 +193,7 @@ namespace SecsGem.NetCore.Function
             return values;
         }
 
-        public async Task<IEnumerable<DataVariable>> GetDataVariableDefinitions(IEnumerable<string> ids = null, CancellationToken ct = default)
+        public async Task<IEnumerable<DataVariable>> DataVariableDefinitionGet(IEnumerable<string> ids = null, CancellationToken ct = default)
         {
             if (ids == null) ids = Array.Empty<string>();
 
@@ -220,7 +220,7 @@ namespace SecsGem.NetCore.Function
             return dvs;
         }
 
-        public async Task<S2F15_EAC> SetEquipmentConstants(IEnumerable<EquipmentConstant> ecs, CancellationToken ct = default)
+        public async Task<S2F15_EAC> EquipmentConstantSet(IEnumerable<EquipmentConstant> ecs, CancellationToken ct = default)
         {
             if (!ecs.Any()) return 0;
 
@@ -241,7 +241,7 @@ namespace SecsGem.NetCore.Function
             return (S2F15_EAC)msg.Root.GetBin();
         }
 
-        public async Task<IEnumerable<EquipmentConstant>> GetEquipmentConstantDefinitions(IEnumerable<uint> ids = null, CancellationToken ct = default)
+        public async Task<IEnumerable<EquipmentConstant>> EquipmentConstantDefinitionGet(IEnumerable<uint> ids = null, CancellationToken ct = default)
         {
             if (ids == null) ids = Array.Empty<uint>();
 
@@ -271,7 +271,7 @@ namespace SecsGem.NetCore.Function
             return svs;
         }
 
-        public async Task<Dictionary<uint, int>> GetEquipmentConstantValues(IEnumerable<uint> ids = null, CancellationToken ct = default)
+        public async Task<Dictionary<uint, int>> EquipmentConstantValueGet(IEnumerable<uint> ids = null, CancellationToken ct = default)
         {
             if (ids == null) ids = Array.Empty<uint>();
 
@@ -293,7 +293,7 @@ namespace SecsGem.NetCore.Function
             return values;
         }
 
-        public async Task<IEnumerable<CollectionEvent>> GetCollectionEventDefinitions(IEnumerable<uint> ids = null, CancellationToken ct = default)
+        public async Task<IEnumerable<CollectionEvent>> CollectionEventDefinitionGet(IEnumerable<uint> ids = null, CancellationToken ct = default)
         {
             if (ids == null) ids = Array.Empty<uint>();
 
@@ -329,7 +329,7 @@ namespace SecsGem.NetCore.Function
             return dvs;
         }
 
-        public async Task<S2F34_DRACK> DefineCollectionReport(uint dataId, IEnumerable<CollectionReport> report, CancellationToken ct = default)
+        public async Task<S2F34_DRACK> CollectionReportDefine(uint dataId, IEnumerable<CollectionReport> report, CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -360,7 +360,7 @@ namespace SecsGem.NetCore.Function
             return ack;
         }
 
-        public async Task<S2F36_LRACK> LinkCollectionReport(uint dataId, IEnumerable<CollectionEvent> ces, CancellationToken ct = default)
+        public async Task<S2F36_LRACK> CollectionReportLink(uint dataId, IEnumerable<CollectionEvent> ces, CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -391,7 +391,7 @@ namespace SecsGem.NetCore.Function
             return ack;
         }
 
-        public async Task<IEnumerable<CollectionEvent>> GetCollectionEventLinks(IEnumerable<uint> ids = null, CancellationToken ct = default)
+        public async Task<IEnumerable<CollectionEvent>> CollectionEventLinkGet(IEnumerable<uint> ids = null, CancellationToken ct = default)
         {
             if (ids == null) ids = Array.Empty<uint>();
 
@@ -418,7 +418,7 @@ namespace SecsGem.NetCore.Function
             return res;
         }
 
-        public async Task<bool> ToggleCollectionEvent(bool active, IEnumerable<uint> ids, CancellationToken ct = default)
+        public async Task<bool> CollectionEventToggle(bool active, IEnumerable<uint> ids, CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -442,7 +442,7 @@ namespace SecsGem.NetCore.Function
             return ack;
         }
 
-        public async Task<IEnumerable<uint>> GetEnabledCollectionEventIds(CancellationToken ct = default)
+        public async Task<IEnumerable<uint>> CollectionEventEnabledIdGet(CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -456,7 +456,7 @@ namespace SecsGem.NetCore.Function
             return res;
         }
 
-        public async Task<IEnumerable<uint>> GetCollectionReportIds(CancellationToken ct = default)
+        public async Task<IEnumerable<uint>> CollectionReportIdGet(CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -470,7 +470,7 @@ namespace SecsGem.NetCore.Function
             return res;
         }
 
-        public async Task<IEnumerable<CollectionReport>> GetCollectionReportDefinitions(IEnumerable<uint> ids = null, CancellationToken ct = default)
+        public async Task<IEnumerable<CollectionReport>> CollectionReportDefinitionGet(IEnumerable<uint> ids = null, CancellationToken ct = default)
         {
             if (ids == null) ids = Array.Empty<uint>();
 
@@ -522,7 +522,7 @@ namespace SecsGem.NetCore.Function
             return ack;
         }
 
-        public async Task<string> GetServerTime(CancellationToken ct = default)
+        public async Task<string> ServerTimeGet(CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -535,12 +535,12 @@ namespace SecsGem.NetCore.Function
             return msg.Root.GetString();
         }
 
-        public async Task<bool> SetServerTime(DateTime time, CancellationToken ct = default)
+        public async Task<bool> ServerTimeSet(DateTime time, CancellationToken ct = default)
         {
-            return await SetServerTime(time.ToString("o"), ct);
+            return await ServerTimeSet(time.ToString("o"), ct);
         }
 
-        public async Task<bool> SetServerTime(string time, CancellationToken ct = default)
+        public async Task<bool> ServerTimeSet(string time, CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -555,7 +555,7 @@ namespace SecsGem.NetCore.Function
             return ack;
         }
 
-        public async Task ToggleAlarm(uint id, bool active, CancellationToken ct = default)
+        public async Task AlarmToggle(uint id, bool active, CancellationToken ct = default)
         {
             await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -570,7 +570,7 @@ namespace SecsGem.NetCore.Function
             );
         }
 
-        public async Task<IEnumerable<Alarm>> GetAlarmDefinitions(IEnumerable<uint> ids = null, CancellationToken ct = default)
+        public async Task<IEnumerable<Alarm>> AlarmDefinitionGet(IEnumerable<uint> ids = null, CancellationToken ct = default)
         {
             if (ids == null) ids = Array.Empty<uint>();
 
@@ -593,7 +593,7 @@ namespace SecsGem.NetCore.Function
             return alarms;
         }
 
-        public async Task<IEnumerable<Alarm>> GetEnabledAlarmDefinitions(CancellationToken ct = default)
+        public async Task<IEnumerable<Alarm>> AlarmEnabledGet(CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -613,7 +613,7 @@ namespace SecsGem.NetCore.Function
             return alarms;
         }
 
-        public async Task<S7F2_PPGNT> GrantProcessProgramLoad(string id, uint length, CancellationToken ct = default)
+        public async Task<S7F2_PPGNT> ProcessProgramGrant(string id, uint length, CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -633,7 +633,7 @@ namespace SecsGem.NetCore.Function
             return ack;
         }
 
-        public async Task<S7F4_ACKC7> LoadProcessProgram(string id, byte[] body, CancellationToken ct = default)
+        public async Task<S7F4_ACKC7> ProcessProgramLoad(string id, byte[] body, CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -653,7 +653,7 @@ namespace SecsGem.NetCore.Function
             return ack;
         }
 
-        public async Task<ProcessProgram> GetProcessProgram(string id, CancellationToken ct = default)
+        public async Task<ProcessProgram> ProcessProgramGet(string id, CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -675,7 +675,7 @@ namespace SecsGem.NetCore.Function
             return pp;
         }
 
-        public async Task<IEnumerable<string>> GetProcessPrograms(CancellationToken ct = default)
+        public async Task<IEnumerable<string>> ProcessProgramList(CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -689,7 +689,7 @@ namespace SecsGem.NetCore.Function
             return ppids;
         }
 
-        public async Task<S7F4_ACKC7> DeleteProcessProgram(IEnumerable<string> ids = null, CancellationToken ct = default)
+        public async Task<S7F4_ACKC7> ProcessProgramDelete(IEnumerable<string> ids = null, CancellationToken ct = default)
         {
             if (ids == null) ids = Array.Empty<string>();
 

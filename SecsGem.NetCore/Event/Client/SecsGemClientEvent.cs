@@ -17,6 +17,8 @@ namespace SecsGem.NetCore.Event.Client
 
         Task TerminalDisplay(SecsGemTerminalDisplayEvent evt);
 
+        Task CommunicationStateChange(SecsGemCommunicationStateChangeEvent evt);
+
         Task Error(SecsGemErrorEvent evt);
     }
 
@@ -51,6 +53,10 @@ namespace SecsGem.NetCore.Event.Client
 
                 case SecsGemEventType.OrphanMessage:
                     await _handler.OrphanMessage(e as SecsGemOrphanMessageEvent);
+                    break;
+
+                case SecsGemEventType.CommunicationStateChange:
+                    await _handler.CommunicationStateChange(e as SecsGemCommunicationStateChangeEvent);
                     break;
 
                 case SecsGemEventType.Error:
