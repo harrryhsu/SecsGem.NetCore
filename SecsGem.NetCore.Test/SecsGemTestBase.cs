@@ -3,6 +3,8 @@ using SecsGem.NetCore.Helper;
 using System.Diagnostics;
 using System.Net;
 
+[assembly: LevelOfParallelism(12)]
+
 namespace SecsGem.NetCore.Test
 {
     [NonParallelizable]
