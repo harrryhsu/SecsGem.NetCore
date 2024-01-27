@@ -24,6 +24,7 @@ namespace SecsGem.NetCore.Handler.Server
             {
                 await req.ReplyAsync(
                     HsmsMessage.Builder
+                        .Reply(req.Message)
                         .Stream(1)
                         .Func(0)
                         .Build()

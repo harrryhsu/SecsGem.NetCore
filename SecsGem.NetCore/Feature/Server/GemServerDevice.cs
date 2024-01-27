@@ -11,11 +11,11 @@
 
     public class GemServerDevice
     {
-        public bool IsSelected { get; set; }
+        public volatile bool IsSelected = false;
 
         public GemServerControlStateMachine ControlState { get; set; } = new();
 
-        public CommunicationStateModel CommunicationState { get; set; }
+        public volatile CommunicationStateModel CommunicationState = CommunicationStateModel.CommunicationDisconnected;
 
         public string Model { get; set; }
 

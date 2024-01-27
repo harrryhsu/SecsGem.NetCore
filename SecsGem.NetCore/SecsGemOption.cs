@@ -33,12 +33,12 @@ namespace SecsGem.NetCore
         /// <summary>
         /// Message reply timeout
         /// </summary>
-        public int T3 { get; set; } = 3000;
+        public int T3 { get; set; } = 1000;
 
         /// <summary>
         /// Not selected timeout, only has effect for SecsGemServer
         /// </summary>
-        public int T7 { get; set; } = 3000;
+        public int T7 { get; set; } = 1000;
 
         /// <summary>
         /// Byte Recv Timeout

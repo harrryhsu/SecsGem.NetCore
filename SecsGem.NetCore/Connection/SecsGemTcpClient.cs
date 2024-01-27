@@ -83,13 +83,13 @@ namespace SecsGem.NetCore.Connection
 
                     if (_query.ContainsKey(msg.Header.Context))
                     {
-                        _option.DebugLog($"RECV {msg.Header.SType} {msg.ToShortName()}, Setting Result");
+                        _option.DebugLog($"RECV {msg.Header.SType} {msg.ToShortNameWithContext()}, Setting Result");
                         _query[msg.Header.Context].Task.SetResult(msg);
                         _query.TryRemove(msg.Header.Context, out _);
                     }
                     else
                     {
-                        _option.DebugLog($"RECV {msg.Header.SType} {msg.ToShortName()}, Invoking Event");
+                        _option.DebugLog($"RECV {msg.Header.SType} {msg.ToShortNameWithContext()}, Invoking Event");
                         _ = OnMessageReceived?.Invoke(this, con, msg);
                     }
                 }
@@ -135,8 +135,8 @@ namespace SecsGem.NetCore.Connection
 
                 if (msg.Header.SType == HsmsMessageType.DataMessage && msg.Header.F == 0)
                 {
-                    _option.DebugLog($"Message is aborted T{reply.Header.SType}{reply.ToShortName()}");
-                    throw new SecsGemTransactionException($"Message is aborted T{reply.Header.SType}{reply.ToShortName()}") { Code = "abort" };
+                    _option.DebugLog($"Message is aborted {reply.Header.SType} {reply.ToShortNameWithContext()}");
+                    throw new SecsGemTransactionException($"Message is aborted {reply.Header.SType} {reply.ToShortNameWithContext()}") { Code = "abort" };
                 }
                 else if (msg.Header.SType == HsmsMessageType.DataMessage && (
                     reply.Header.SType != HsmsMessageType.DataMessage ||
@@ -144,8 +144,8 @@ namespace SecsGem.NetCore.Connection
                     msg.Header.F + 1 != reply.Header.F
                 ))
                 {
-                    _option.DebugLog($"WAIT {msg.Header.SType} {msg.ToShortName()}, Unexpected reply T{reply.Header.SType}{reply.ToShortName()}");
-                    throw new SecsGemTransactionException($"Unexpected Reply: T{reply.Header.SType}{reply.ToShortName()}") { Code = "unexpected_reply" };
+                    _option.DebugLog($"WAIT {msg.Header.SType} {msg.ToShortNameWithContext()}, Unexpected reply {reply.Header.SType} {reply.ToShortNameWithContext()}");
+                    throw new SecsGemTransactionException($"Unexpected Reply: {reply.Header.SType} {reply.ToShortNameWithContext()}") { Code = "unexpected_reply" };
                 }
                 else
                 {
@@ -154,12 +154,12 @@ namespace SecsGem.NetCore.Connection
             }
             catch (TimeoutException)
             {
-                _option.DebugLog($"WAIT {msg.Header.SType} {msg.ToShortName()}, Timeout");
+                _option.DebugLog($"WAIT {msg.Header.SType} {msg.ToShortNameWithContext()}, Timeout");
                 throw new SecsGemTransactionException("Wait For Reply Timeout") { Code = "reply_timeout" };
             }
             catch (ObjectDisposedException)
             {
-                _option.DebugLog($"WAIT {msg.Header.SType} {msg.ToShortName()}, Connection disposed");
+                _option.DebugLog($"WAIT {msg.Header.SType} {msg.ToShortNameWithContext()}, Connection disposed");
                 throw new SecsGemConnectionException("Connection Dispoed") { Code = "disposed" };
             }
             finally
@@ -180,7 +180,7 @@ namespace SecsGem.NetCore.Connection
             if (!Online) throw new SecsGemConnectionException("Server/Client is not online") { Code = "not_connected" };
             await con.Lock.WaitAsync(token);
 
-            _option.DebugLog($"SEND {msg.Header.SType} {msg.ToShortName()}");
+            _option.DebugLog($"SEND {msg.Header.SType} {msg.ToShortNameWithContext()}");
 
             try
             {
@@ -191,12 +191,12 @@ namespace SecsGem.NetCore.Connection
             }
             catch (ObjectDisposedException)
             {
-                _option.DebugLog($"SEND {msg.Header.SType} {msg.ToShortName()}, Connection disposed");
+                _option.DebugLog($"SEND {msg.Header.SType} {msg.ToShortNameWithContext()}, Connection disposed");
                 throw new SecsGemConnectionException("Connection Disposed") { Code = "disposed" };
             }
             catch (Exception ex)
             {
-                _option.DebugLog($"SEND {msg.Header.SType} {msg.ToShortName()}, Error {ex}");
+                _option.DebugLog($"SEND {msg.Header.SType} {msg.ToShortNameWithContext()}, Error {ex}");
                 throw new SecsGemConnectionException("Message Send Error", ex);
             }
             finally

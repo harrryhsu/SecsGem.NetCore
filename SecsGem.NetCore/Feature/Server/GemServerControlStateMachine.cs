@@ -27,9 +27,9 @@
 
     public class GemServerControlStateMachine
     {
-        public ControlStateModel State { get; set; } = ControlStateModel.ControlEquipmentOffLine;
+        public volatile ControlStateModel State = ControlStateModel.ControlEquipmentOffLine;
 
-        public ControlOnlineStateModel OnlineState { get; set; } = ControlOnlineStateModel.ControlOnlineLocal;
+        public volatile ControlOnlineStateModel OnlineState = ControlOnlineStateModel.ControlOnlineLocal;
 
         public bool IsControlOnline => State == ControlStateModel.ControlOnline;
 

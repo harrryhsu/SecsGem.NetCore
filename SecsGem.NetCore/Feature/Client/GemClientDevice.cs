@@ -4,11 +4,11 @@ namespace SecsGem.NetCore.Feature.Client
 {
     public class GemClientDevice
     {
-        public bool IsSelected { get; set; }
+        public volatile bool IsSelected;
 
-        public ControlStateModel ControlState { get; set; } = ControlStateModel.ControlHostOffLine;
+        public volatile ControlStateModel ControlState = ControlStateModel.ControlHostOffLine;
 
-        public CommunicationStateModel CommunicationState { get; set; }
+        public volatile CommunicationStateModel CommunicationState = CommunicationStateModel.CommunicationDisconnected;
 
         public string Model { get; set; }
 

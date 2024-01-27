@@ -1,7 +1,6 @@
 ﻿using SecsGem.NetCore.Connection;
 using SecsGem.NetCore.Event.Client;
 using SecsGem.NetCore.Event.Common;
-using SecsGem.NetCore.Event.Server;
 using SecsGem.NetCore.Feature.Client;
 using SecsGem.NetCore.Feature.Server;
 using SecsGem.NetCore.Function;
@@ -141,15 +140,23 @@ namespace SecsGem.NetCore
                     if (!Device.IsSelected)
                     {
                         var success = await Function.Select(_cts.Token);
-                        if (success) continue;
+                        if (success)
+                        {
+                            _option.DebugLog("Selected");
+                            continue;
+                        }
                         await Task.Delay(3000, _cts.Token);
                     }
-                    else if (Device.CommunicationState == CommunicationStateModel.CommunicationOffline)
+                    else if (Device.CommunicationState != CommunicationStateModel.CommunicationOnline)
                     {
                         if (_option.ActiveConnect)
                         {
                             var success = await Function.CommunicationEstablish(_cts.Token);
-                            if (success) continue;
+                            if (success)
+                            {
+                                _option.DebugLog("Communication Established");
+                                continue;
+                            }
                         }
 
                         await Task.Delay(3000, _cts.Token);
@@ -167,9 +174,8 @@ namespace SecsGem.NetCore
                     }
                 }
             }
-            catch (OperationCanceledException)
-            {
-            }
+            catch (TaskCanceledException) { }
+            catch (OperationCanceledException) { }
             catch (SecsGemConnectionException ex)
             {
                 if (ex.Code != "not_connected")
@@ -203,6 +209,7 @@ namespace SecsGem.NetCore
 
         public async ValueTask DisposeAsync()
         {
+            _cts.Cancel();
             await Function.Separate();
             await Disconnect();
             _tcp.Dispose();

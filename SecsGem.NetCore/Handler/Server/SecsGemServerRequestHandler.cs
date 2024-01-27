@@ -76,7 +76,21 @@ namespace SecsGem.NetCore.Handler.Server
                         }
                     }
 
-                    if (_handlers.TryGetValue(message.ToShortName(), out var handler))
+                    if (message.Header.S == 9)
+                    {
+                        await kernel.Emit(new SecsGemErrorEvent
+                        {
+                            Message = $"Reply error {shortName}",
+                        });
+                    }
+                    else if (message.Header.S == 0)
+                    {
+                        await kernel.Emit(new SecsGemErrorEvent
+                        {
+                            Message = $"Reply abort {shortName}",
+                        });
+                    }
+                    else if (_handlers.TryGetValue(message.ToShortName(), out var handler))
                     {
                         try
                         {
@@ -84,7 +98,10 @@ namespace SecsGem.NetCore.Handler.Server
                         }
                         catch (Exception ex)
                         {
-                            kernel._option.DebugLog($"Error while handling request {shortName}: {ex}");
+                            await kernel.Emit(new SecsGemErrorEvent
+                            {
+                                Message = $"Error while handling request {shortName}: {ex}",
+                            });
 
                             var writer = new ByteBufferWriter();
                             message.Header.Write(writer);
@@ -123,7 +140,7 @@ namespace SecsGem.NetCore.Handler.Server
                     break;
 
                 case HsmsMessageType.SelectReq:
-                    if (req.Kernel.Device.CommunicationState == CommunicationStateModel.CommunicationOffline)
+                    if (req.Kernel.Device.CommunicationState != CommunicationStateModel.CommunicationOnline)
                     {
                         await req.ReplyAsync(
                             HsmsMessage.Builder

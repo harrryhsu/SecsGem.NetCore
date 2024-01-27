@@ -148,10 +148,12 @@ namespace SecsGem.NetCore
                         try
                         {
                             if (_option.T7 < 100) _option.T7 = 100;
-                            await TaskHelper.WaitFor(() => Device.IsSelected, 10, _option.T7 / 10, _cts.Token);
+                            await TaskHelper.WaitFor(() => Device.IsSelected, _option.T7 / 10, 10, _cts.Token);
+                            _option.DebugLog("Selected");
                         }
                         catch (TimeoutException)
                         {
+                            if (!con.TcpClient.Connected) return;
                             await Emit(new SecsGemErrorEvent
                             {
                                 Message = "T7 Timeout"
@@ -160,12 +162,16 @@ namespace SecsGem.NetCore
                             return;
                         }
                     }
-                    else if (Device.CommunicationState == CommunicationStateModel.CommunicationOffline)
+                    else if (Device.CommunicationState != CommunicationStateModel.CommunicationOnline)
                     {
                         if (_option.ActiveConnect)
                         {
                             var success = await Function.CommunicationEstablish(_cts.Token);
-                            if (success) continue;
+                            if (success)
+                            {
+                                _option.DebugLog("Communication Established");
+                                continue;
+                            }
                         }
                         await Task.Delay(3000, _cts.Token);
                     }
@@ -181,6 +187,8 @@ namespace SecsGem.NetCore
                     }
                 }
             }
+            catch (TaskCanceledException) { }
+            catch (OperationCanceledException) { }
             catch (SecsGemConnectionException ex)
             {
                 if (ex.Code != "not_connected")
@@ -243,6 +251,7 @@ namespace SecsGem.NetCore
 
         public async ValueTask DisposeAsync()
         {
+            _cts.Cancel();
             await Emit(new SecsGemStopEvent());
             await Function.Separate();
             await Disconnect();

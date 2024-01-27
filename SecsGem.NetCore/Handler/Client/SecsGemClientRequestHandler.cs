@@ -64,7 +64,22 @@ namespace SecsGem.NetCore.Handler.Client
             switch (message.Header.SType)
             {
                 case HsmsMessageType.DataMessage:
-                    if (_handlers.TryGetValue(message.ToShortName(), out var handler))
+                    var shortName = message.ToShortName();
+                    if (message.Header.S == 9)
+                    {
+                        await kernel.Emit(new SecsGemErrorEvent
+                        {
+                            Message = $"Reply error {shortName}",
+                        });
+                    }
+                    else if (message.Header.S == 0)
+                    {
+                        await kernel.Emit(new SecsGemErrorEvent
+                        {
+                            Message = $"Reply abort {shortName}",
+                        });
+                    }
+                    else if (_handlers.TryGetValue(message.ToShortName(), out var handler))
                     {
                         try
                         {

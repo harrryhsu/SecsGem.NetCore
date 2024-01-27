@@ -1,5 +1,6 @@
 using SecsGem.NetCore.Feature.Server;
 using SecsGem.NetCore.Helper;
+using SecsGem.NetCore.Test.Helper;
 using System.Net;
 
 namespace SecsGem.NetCore.Test.Test
@@ -58,7 +59,7 @@ namespace SecsGem.NetCore.Test.Test
         public async Task Communication_Timeout()
         {
             await Init(false, false);
-            Assert.CatchAsync<TimeoutException>(async () =>
+            await AssertEx.CatchAsync<TimeoutException>(async () =>
             {
                 await TaskHelper.WaitFor(() => _client.Device.IsCommunicationOnline && _server.Device.IsCommunicationOnline, 10, 100);
             });
@@ -102,13 +103,14 @@ namespace SecsGem.NetCore.Test.Test
             var online = await _client.Function.IsEquipmentControlOnline();
 
             Assert.That(online, Is.False);
-            Assert.CatchAsync<SecsGemTransactionException>(async () =>
+            await AssertEx.CatchAsync<SecsGemTransactionException>(async () =>
             {
                 await _client.Function.AlarmDefinitionGet();
             });
 
             _server.Device.ControlState.State = ControlStateModel.ControlHostOffLine;
             var ack = await _client.Function.ControlOnline();
+            Assert.That(ack, Is.True);
             await _client.Function.AlarmDefinitionGet();
         }
     }
