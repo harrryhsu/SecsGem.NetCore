@@ -1,4 +1,4 @@
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/harrryhsu/SecsGem.NetCore/docker-image.yml) 
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/harrryhsu/SecsGem.NetCore/docker-image.yml)  [![NuGet Downloads](https://img.shields.io/nuget/dt/SecsGem.NetCore)](https://www.nuget.org/packages/SecsGem.NetCore)
 
 # SecsGem.NetCore
 
