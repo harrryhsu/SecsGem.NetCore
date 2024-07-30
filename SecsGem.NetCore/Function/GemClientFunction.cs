@@ -32,7 +32,7 @@ namespace SecsGem.NetCore.Function
             {
                 await _kernel.Emit(new SecsGemErrorEvent
                 {
-                    Message = "Server rejected select request",
+                    Message = "Server rejected select Contextuest",
                 });
                 return false;
             }
@@ -87,7 +87,7 @@ namespace SecsGem.NetCore.Function
             {
                 await _kernel.Emit(new SecsGemErrorEvent
                 {
-                    Message = "Server rejected communication online request",
+                    Message = "Server rejected communication online Contextuest",
                 });
                 return false;
             }

@@ -12,7 +12,7 @@ namespace SecsGem.NetCore.Event.Client
 
         Task NotifyException(SecsGemNotifyExceptionEvent evt);
 
-        Task OrphanMessage(SecsGemOrphanMessageEvent evt);
+        Task OrphanMessage(SecsGemClientOrphanMessageEvent evt);
 
         Task TerminalDisplay(SecsGemTerminalDisplayEvent evt);
 
@@ -51,7 +51,7 @@ namespace SecsGem.NetCore.Event.Client
                     break;
 
                 case SecsGemEventType.OrphanMessage:
-                    await _handler.OrphanMessage(e as SecsGemOrphanMessageEvent);
+                    await _handler.OrphanMessage(e as SecsGemClientOrphanMessageEvent);
                     break;
 
                 case SecsGemEventType.StateChange:

@@ -1,6 +1,6 @@
+using SecsGem.NetCore.Enum;
 using SecsGem.NetCore.Event.Server;
 using SecsGem.NetCore.Feature.Server;
-using static SecsGem.NetCore.Handler.Server.SecsGemStream2Handler;
 
 namespace SecsGem.NetCore.Test.Test
 {
@@ -86,16 +86,16 @@ namespace SecsGem.NetCore.Test.Test
         public async Task Set_Equipment_Constant()
         {
             var ack = await _client.Function.EquipmentConstantSet(new List<EquipmentConstant> { new() { Id = EC.Id, Value = -5 } });
-            Assert.That(ack, Is.EqualTo(S2F15_EAC.OneOrMoreValueOutOfRange));
+            Assert.That(ack, Is.EqualTo(SECS_RESPONSE.EAC.OneOrMoreValueOutOfRange));
 
             ack = await _client.Function.EquipmentConstantSet(new List<EquipmentConstant> { new() { Id = EC.Id, Value = 205 } });
-            Assert.That(ack, Is.EqualTo(S2F15_EAC.OneOrMoreValueOutOfRange));
+            Assert.That(ack, Is.EqualTo(SECS_RESPONSE.EAC.OneOrMoreValueOutOfRange));
 
             ack = await _client.Function.EquipmentConstantSet(new List<EquipmentConstant> { new() { Id = EC.Id + 1, Value = 10 } });
-            Assert.That(ack, Is.EqualTo(S2F15_EAC.OneOrMoreConstantDoNotExist));
+            Assert.That(ack, Is.EqualTo(SECS_RESPONSE.EAC.OneOrMoreConstantDoNotExist));
 
             ack = await _client.Function.EquipmentConstantSet(new List<EquipmentConstant> { new() { Id = EC.Id, Value = 50 } });
-            Assert.That(ack, Is.EqualTo(S2F15_EAC.Ok));
+            Assert.That(ack, Is.EqualTo(SECS_RESPONSE.EAC.Ok));
             Assert.That(_server.Feature.EquipmentConstants.First().Value, Is.EqualTo(50));
         }
     }

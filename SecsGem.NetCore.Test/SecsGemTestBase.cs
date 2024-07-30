@@ -53,9 +53,7 @@ namespace SecsGem.NetCore.Test
         [OneTimeSetUp]
         public void StartTest()
         {
-#if DEBUG
             Trace.Listeners.Add(new ConsoleTraceListener());
-#endif
         }
 
         [OneTimeTearDown]

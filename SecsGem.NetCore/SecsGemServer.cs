@@ -19,6 +19,8 @@ namespace SecsGem.NetCore
 
         public GemServerStateMachine State { get; }
 
+        public SecsGemServerRequestHandler Handler { get; } = new();
+
         public event SecsGemEventHandler OnEvent;
 
         private readonly CancellationTokenSource _cts = new();
@@ -26,8 +28,6 @@ namespace SecsGem.NetCore
         internal readonly SecsGemOption _option;
 
         internal readonly SecsGemTcpServer _tcp;
-
-        private readonly SecsGemServerRequestHandler _requestHandler = new();
 
         private readonly AsyncExecutionLock _lock = new();
 
@@ -53,14 +53,14 @@ namespace SecsGem.NetCore
             {
                 try
                 {
-                    await _requestHandler.Handle(sender, con, this, message);
+                    await Handler.Handle(sender, con, this, message);
                 }
                 catch (Exception ex)
                 {
                     await Emit(new SecsGemErrorEvent
                     {
-                        Message = "Error during request handling",
-                        Exception = new SecsGemException("Error during request handling", ex),
+                        Message = "Error during Contextuest handling",
+                        Exception = new SecsGemException("Error during Contextuest handling", ex),
                     });
                 }
             });

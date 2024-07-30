@@ -1,7 +1,7 @@
+using SecsGem.NetCore.Enum;
 using SecsGem.NetCore.Event.Client;
 using SecsGem.NetCore.Event.Server;
 using SecsGem.NetCore.Feature.Server;
-using static SecsGem.NetCore.Handler.Server.SecsGemStream2Handler;
 
 namespace SecsGem.NetCore.Test.Test
 {
@@ -191,7 +191,7 @@ namespace SecsGem.NetCore.Test.Test
                     }
                 }
             });
-            Assert.That(ack, Is.EqualTo(S2F34_DRACK.AlreadyDefined));
+            Assert.That(ack, Is.EqualTo(SECS_RESPONSE.DRACK.AlreadyDefined));
 
             ack = await _client.Function.CollectionReportDefine(1, new List<CollectionReport>() {
                 new() {
@@ -205,7 +205,7 @@ namespace SecsGem.NetCore.Test.Test
                     }
                 }
             });
-            Assert.That(ack, Is.EqualTo(S2F34_DRACK.InvalidVid));
+            Assert.That(ack, Is.EqualTo(SECS_RESPONSE.DRACK.InvalidVid));
 
             ack = await _client.Function.CollectionReportDefine(1, new List<CollectionReport>() {
                 new() {
@@ -215,7 +215,7 @@ namespace SecsGem.NetCore.Test.Test
                     }
                 }
             });
-            Assert.That(ack, Is.EqualTo(S2F34_DRACK.InvalidFormat));
+            Assert.That(ack, Is.EqualTo(SECS_RESPONSE.DRACK.InvalidFormat));
 
             ack = await _client.Function.CollectionReportDefine(1, new List<CollectionReport>() {
                 new() {
@@ -229,7 +229,7 @@ namespace SecsGem.NetCore.Test.Test
                     }
                 }
             });
-            Assert.That(ack, Is.EqualTo(S2F34_DRACK.Ok));
+            Assert.That(ack, Is.EqualTo(SECS_RESPONSE.DRACK.Ok));
             Assert.That(_server.Feature.CollectionReports.Count, Is.EqualTo(3));
             var nrp = _server.Feature.CollectionReports.FirstOrDefault(x => x.Id == 1);
             Assert.That(nrp, Is.Not.Null);
@@ -265,7 +265,7 @@ namespace SecsGem.NetCore.Test.Test
                     }
                 }
             });
-            Assert.That(ack, Is.EqualTo(S2F36_LRACK.OneOrMoreCeidInvalid));
+            Assert.That(ack, Is.EqualTo(SECS_RESPONSE.LRACK.OneOrMoreCeidInvalid));
 
             ack = await _client.Function.CollectionReportLink(1, new List<CollectionEvent> {
                 new() {
@@ -278,7 +278,7 @@ namespace SecsGem.NetCore.Test.Test
                     }
                 }
             });
-            Assert.That(ack, Is.EqualTo(S2F36_LRACK.OneOrMoreRptidInvalid));
+            Assert.That(ack, Is.EqualTo(SECS_RESPONSE.LRACK.OneOrMoreRptidInvalid));
 
             ack = await _client.Function.CollectionReportLink(1, new List<CollectionEvent> {
                 new() {
@@ -291,7 +291,7 @@ namespace SecsGem.NetCore.Test.Test
                     }
                 }
             });
-            Assert.That(ack, Is.EqualTo(S2F36_LRACK.OneOrMoreCeidAlreadyDefined));
+            Assert.That(ack, Is.EqualTo(SECS_RESPONSE.LRACK.OneOrMoreCeidAlreadyDefined));
 
             ack = await _client.Function.CollectionReportLink(1, new List<CollectionEvent> {
                 new() {
@@ -304,7 +304,7 @@ namespace SecsGem.NetCore.Test.Test
                     }
                 }
             });
-            Assert.That(ack, Is.EqualTo(S2F36_LRACK.Ok));
+            Assert.That(ack, Is.EqualTo(SECS_RESPONSE.LRACK.Ok));
 
             var sce = _server.Feature.CollectionEvents.First();
             Assert.That(sce.CollectionReports, Has.Count.EqualTo(3));

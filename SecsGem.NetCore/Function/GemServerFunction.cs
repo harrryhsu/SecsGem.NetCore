@@ -39,7 +39,7 @@ namespace SecsGem.NetCore.Function
             {
                 await _kernel.Emit(new SecsGemErrorEvent
                 {
-                    Message = "Remote Rejected Communication Establishment Request"
+                    Message = "Remote Rejected Communication Establishment Contextuest"
                 });
                 return false;
             }
@@ -179,6 +179,16 @@ namespace SecsGem.NetCore.Function
                     .Build(),
                 ct
             );
+        }
+
+        public async Task<bool> GoOnlineRemote(CancellationToken ct = default)
+        {
+            return await _kernel.State.TriggerAsync(GemServerStateTrigger.GoOnlineRemote);
+        }
+
+        public async Task<bool> GoOnlineLocal(CancellationToken ct = default)
+        {
+            return await _kernel.State.TriggerAsync(GemServerStateTrigger.GoOnlineLocal);
         }
     }
 }

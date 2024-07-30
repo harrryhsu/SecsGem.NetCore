@@ -1,34 +1,27 @@
-﻿using SecsGem.NetCore.Event.Server;
+using SecsGem.NetCore.Event.Server;
 using SecsGem.NetCore.Feature.Server;
+using SecsGem.NetCore.Handler.Common;
 using SecsGem.NetCore.Hsms;
 
 namespace SecsGem.NetCore.Handler.Server
 {
-    public class SecsGemStream6Handler : ISecsGemServerStreamHandler
+    [SecsGemStream(6, 15)]
+    [SecsGemFunctionType(SecsGemFunctionType.ReadOnly)]
+    public class SecsGemServerHandlerS6F15 : SecsGemServerStreamHandler
     {
-        public async Task S6F5(SecsGemServerRequestContext req)
+        public override async Task Execute()
         {
-            await req.ReplyAsync(
-                HsmsMessage.Builder
-                    .Reply(req.Message)
-                    .Item(new BinDataItem(0x0))
-                    .Build()
-            );
-        }
+            var id = Context.Message.Root.GetU4();
+            var ce = Context.Kernel.Feature.CollectionEvents.FirstOrDefault(x => x.Id == id) ?? new CollectionEvent { Id = id };
 
-        public async Task S6F15(SecsGemServerRequestContext req)
-        {
-            var id = req.Message.Root.GetU4();
-            var ce = req.Kernel.Feature.CollectionEvents.FirstOrDefault(x => x.Id == id) ?? new CollectionEvent { Id = id };
-
-            await req.Kernel.Emit(new SecsGemGetDataVariableEvent
+            await Context.Kernel.Emit(new SecsGemGetDataVariableEvent
             {
                 Params = ce.CollectionReports.SelectMany(x => x.DataVariables)
             });
 
-            await req.ReplyAsync(
+            await Context.ReplyAsync(
                 HsmsMessage.Builder
-                    .Reply(req.Message)
+                    .Reply(Context.Message)
                     .Item(new ListDataItem(
                         new U4DataItem(0),
                         new U4DataItem(id),

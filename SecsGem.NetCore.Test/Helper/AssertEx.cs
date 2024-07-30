@@ -2,12 +2,12 @@
 {
     public static class AssertEx
     {
-        public static async Task<Exception> CatchAsync(Func<Task> callback)
+        public static async Task<Exception> ThrowAsync(Func<Task> callback)
         {
-            return await CatchAsync<Exception>(callback);
+            return await ThrowAsync<Exception>(callback);
         }
 
-        public static async Task<TException> CatchAsync<TException>(Func<Task> callback) where TException : Exception
+        public static async Task<TException> ThrowAsync<TException>(Func<Task> callback) where TException : Exception
         {
             TException ex = null;
             try
@@ -25,6 +25,24 @@
             });
 
             return ex;
+        }
+
+        public static async Task DoesNotThrowAsync(Func<Task> callback)
+        {
+            Exception ex = null;
+            try
+            {
+                await callback();
+            }
+            catch (Exception x)
+            {
+                ex = x;
+            }
+
+            Assert.DoesNotThrow(() =>
+            {
+                if (ex != null) throw ex;
+            });
         }
     }
 }

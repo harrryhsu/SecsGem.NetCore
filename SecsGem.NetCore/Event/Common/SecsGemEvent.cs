@@ -31,6 +31,8 @@
         CollectionEvent,
 
         NotifyException,
+
+        DataChange,
     }
 
     public abstract class SecsGemEvent

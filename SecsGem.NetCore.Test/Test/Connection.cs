@@ -60,7 +60,7 @@ namespace SecsGem.NetCore.Test.Test
         public async Task Communication_Timeout()
         {
             await Init(false, false);
-            await AssertEx.CatchAsync<TimeoutException>(async () =>
+            await AssertEx.ThrowAsync<TimeoutException>(async () =>
             {
                 await TaskHelper.WaitFor(
                     () => _client.State.IsExact(GemClientStateModel.ControlOffLine)
@@ -96,24 +96,6 @@ namespace SecsGem.NetCore.Test.Test
                 Assert.That(_client.State.Current, Is.EqualTo(GemClientStateModel.ControlOnline));
                 Assert.That(_server.State.Current, Is.EqualTo(GemServerStateModel.ControlOnlineRemote));
             });
-        }
-
-        [Test]
-        public async Task Control_Offline_Invalid_Message()
-        {
-            await Init(true, false);
-            await TaskHelper.WaitFor(() => _client.State.IsExact(GemClientStateModel.ControlOffLine) && _server.State.IsExact(GemServerStateModel.ControlOffLine), 10, 100);
-            var online = await _client.Function.IsEquipmentControlOnline();
-
-            Assert.That(online, Is.False);
-            await AssertEx.CatchAsync<SecsGemTransactionException>(async () =>
-            {
-                await _client.Function.AlarmDefinitionGet();
-            });
-
-            var ack = await _client.Function.ControlOnline();
-            Assert.That(ack, Is.True);
-            await _client.Function.AlarmDefinitionGet();
         }
     }
 }

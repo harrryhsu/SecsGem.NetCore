@@ -24,11 +24,13 @@ namespace SecsGem.NetCore.Event.Server
 
         Task StateChange(SecsGemServerStateChangeEvent evt);
 
-        Task OrphanMessage(SecsGemOrphanMessageEvent evt);
+        Task OrphanMessage(SecsGemServerOrphanMessageEvent evt);
 
         Task Error(SecsGemErrorEvent evt);
 
         Task SetTime(SecsGemSetTimeEvent evt);
+
+        Task DataChange(SecsGemDataChangeEvent evt);
     }
 
     public class SecsGemServerEventHandlerExecuter
@@ -85,11 +87,15 @@ namespace SecsGem.NetCore.Event.Server
                     break;
 
                 case SecsGemEventType.OrphanMessage:
-                    await _handler.OrphanMessage(e as SecsGemOrphanMessageEvent);
+                    await _handler.OrphanMessage(e as SecsGemServerOrphanMessageEvent);
                     break;
 
                 case SecsGemEventType.Error:
                     await _handler.Error(e as SecsGemErrorEvent);
+                    break;
+
+                case SecsGemEventType.DataChange:
+                    await _handler.DataChange(e as SecsGemDataChangeEvent);
                     break;
             }
         }

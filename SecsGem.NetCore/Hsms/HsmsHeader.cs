@@ -23,6 +23,23 @@ namespace SecsGem.NetCore.Hsms
         SeparateReq = 9
     }
 
+    public enum HsmsErrorCode
+    {
+        UnrecognizedDeviceId = 1,
+
+        UnrecognizedStream = 3,
+
+        UnrecognizedFunction = 5,
+
+        IllegalData = 7,
+
+        TransactionTimeout = 9,
+
+        DataTooLong = 11,
+
+        ConversionTimeout = 13,
+    }
+
     public class HsmsHeader : IHsmsWritable
     {
         public uint Size { get; set; }
