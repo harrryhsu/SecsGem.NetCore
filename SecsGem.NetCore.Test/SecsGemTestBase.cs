@@ -1,3 +1,4 @@
+using SecsGem.NetCore.Feature.Client;
 using SecsGem.NetCore.Feature.Server;
 using SecsGem.NetCore.Helper;
 using System.Diagnostics;
@@ -37,8 +38,7 @@ namespace SecsGem.NetCore.Test
             await _server.StartAsync();
             await _client.ConnectAsync();
 
-            await TaskHelper.WaitFor(() => _client.Device.IsCommunicationOnline && _server.Device.IsCommunicationOnline, 10, 100);
-            _server.Device.ControlState.State = ControlStateModel.ControlHostOffLine;
+            await TaskHelper.WaitFor(() => _client.State.IsExact(GemClientStateModel.ControlOffLine) && _server.State.IsExact(GemServerStateModel.ControlOffLine), 10, 100);
             await _client.Function.ControlOnline();
         }
 

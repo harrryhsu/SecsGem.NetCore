@@ -30,10 +30,10 @@ namespace SecsGem.NetCore.Function
             );
 
             var ack = reply.Root[0].GetBin();
-            if (ack == 0x0)
+            if (ack == 0)
             {
-                await _kernel.SetCommunicationState(CommunicationStateModel.CommunicationOnline, false);
-                return false;
+                await _kernel.State.TriggerAsync(GemServerStateTrigger.EstablishCommunication);
+                return true;
             }
             else
             {
@@ -41,15 +41,15 @@ namespace SecsGem.NetCore.Function
                 {
                     Message = "Remote Rejected Communication Establishment Request"
                 });
-                return true;
+                return false;
             }
         }
 
-        public async Task<bool> TriggerAlarm(uint id, CancellationToken ct = default)
+        public async Task TriggerAlarm(uint id, CancellationToken ct = default)
         {
             var alarm = _kernel.Feature.Alarms.FirstOrDefault(x => x.Id == id);
             if (alarm == null) throw new SecsGemException("Id not found");
-            if (!alarm.Enabled || !_kernel.Device.ControlState.IsControlOnline) return false;
+            if (!_kernel.State.IsReadable || !alarm.Enabled) return;
 
             await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -64,13 +64,11 @@ namespace SecsGem.NetCore.Function
                     .Build(),
                 ct
             );
-
-            return true;
         }
 
         public async Task<bool> SendHostDisplay(byte id, string text, CancellationToken ct = default)
         {
-            if (!_kernel.Device.ControlState.IsControlOnline) return false;
+            if (!_kernel.State.IsReadable) return false;
 
             var reply = await _tcp.SendAndWaitForReplyAsync(
                   HsmsMessage.Builder
@@ -89,9 +87,9 @@ namespace SecsGem.NetCore.Function
             return code == 0x0;
         }
 
-        public async Task<bool> SendCollectionEvent(uint id, CancellationToken ct = default)
+        public async Task SendCollectionEvent(uint id, CancellationToken ct = default)
         {
-            if (!_kernel.Device.ControlState.IsControlOnline) return false;
+            if (!_kernel.State.IsReadable) return;
 
             var ce = _kernel.Feature.CollectionEvents.FirstOrDefault(x => x.Id == id);
             if (ce == null) throw new SecsGemException("Id not found");
@@ -124,18 +122,16 @@ namespace SecsGem.NetCore.Function
                     .Build(),
                 ct
             );
-
-            return true;
         }
 
-        public async Task<bool> NotifyException(string id, Exception ex, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default)
+        public async Task NotifyException(string id, Exception ex, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default)
         {
-            return await NotifyException(id, ex.GetType().Name, ex.Message, recoveryMessage, timestamp, ct);
+            await NotifyException(id, ex.GetType().Name, ex.Message, recoveryMessage, timestamp, ct);
         }
 
-        public async Task<bool> NotifyException(string id, string type, string message, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default)
+        public async Task NotifyException(string id, string type, string message, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default)
         {
-            if (!_kernel.Device.ControlState.IsControlOnline) return false;
+            if (!_kernel.State.IsReadable) return;
             if (timestamp == default) timestamp = DateTime.Now;
 
             await _tcp.SendAndWaitForReplyAsync(
@@ -158,8 +154,6 @@ namespace SecsGem.NetCore.Function
                     .Build(),
                 ct
             );
-
-            return true;
         }
 
         public async Task Separate(CancellationToken ct = default)

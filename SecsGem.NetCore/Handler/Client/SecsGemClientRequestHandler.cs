@@ -1,6 +1,7 @@
 ﻿using SecsGem.NetCore.Buffer;
 using SecsGem.NetCore.Connection;
 using SecsGem.NetCore.Event.Common;
+using SecsGem.NetCore.Feature.Client;
 using SecsGem.NetCore.Handler.Server;
 using SecsGem.NetCore.Hsms;
 using System.Reflection;
@@ -115,7 +116,7 @@ namespace SecsGem.NetCore.Handler.Client
                     break;
 
                 case HsmsMessageType.SeparateReq:
-                    await req.Kernel.Disconnect();
+                    await req.Kernel.State.TriggerAsync(GemClientStateTrigger.Disconnect);
                     break;
 
                 case HsmsMessageType.DeselectReq:

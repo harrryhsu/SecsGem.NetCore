@@ -1,4 +1,4 @@
-using SecsGem.NetCore.Event.Server;
+using SecsGem.NetCore.Event.Client;
 using SecsGem.NetCore.Feature.Server;
 
 namespace SecsGem.NetCore.Test.Test

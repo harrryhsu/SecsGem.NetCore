@@ -1,5 +1,4 @@
 ﻿using SecsGem.NetCore.Event.Common;
-using SecsGem.NetCore.Event.Server;
 
 namespace SecsGem.NetCore.Event.Client
 {
@@ -17,7 +16,7 @@ namespace SecsGem.NetCore.Event.Client
 
         Task TerminalDisplay(SecsGemTerminalDisplayEvent evt);
 
-        Task CommunicationStateChange(SecsGemCommunicationStateChangeEvent evt);
+        Task StateChange(SecsGemClientStateChangeEvent evt);
 
         Task Error(SecsGemErrorEvent evt);
     }
@@ -55,8 +54,8 @@ namespace SecsGem.NetCore.Event.Client
                     await _handler.OrphanMessage(e as SecsGemOrphanMessageEvent);
                     break;
 
-                case SecsGemEventType.CommunicationStateChange:
-                    await _handler.CommunicationStateChange(e as SecsGemCommunicationStateChangeEvent);
+                case SecsGemEventType.StateChange:
+                    await _handler.StateChange(e as SecsGemClientStateChangeEvent);
                     break;
 
                 case SecsGemEventType.Error:

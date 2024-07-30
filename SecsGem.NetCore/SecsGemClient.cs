@@ -2,7 +2,6 @@
 using SecsGem.NetCore.Event.Client;
 using SecsGem.NetCore.Event.Common;
 using SecsGem.NetCore.Feature.Client;
-using SecsGem.NetCore.Feature.Server;
 using SecsGem.NetCore.Function;
 using SecsGem.NetCore.Handler.Client;
 using SecsGem.NetCore.Hsms;
@@ -12,9 +11,11 @@ namespace SecsGem.NetCore
 {
     public class SecsGemClient : IAsyncDisposable
     {
-        public GemClientDevice Device { get; protected set; } = new();
+        public GemClientDevice Device { get; } = new();
 
-        public GemClientFunction Function { get; protected set; }
+        public GemClientFunction Function { get; }
+
+        public GemClientStateMachine State { get; }
 
         public event SecsGemClientEventHandler OnEvent;
 
@@ -39,6 +40,7 @@ namespace SecsGem.NetCore
             _tcp.OnMessageReceived += OnTcpMessageReceived;
             _tcp.OnError += OnTcpError;
             Function = new(this);
+            State = new(this);
         }
 
         private async Task OnTcpMessageReceived(SecsGemTcpClient sender, TcpConnection con, HsmsMessage message)
@@ -105,9 +107,6 @@ namespace SecsGem.NetCore
 
         internal async Task Disconnect()
         {
-            await SetCommunicationState(CommunicationStateModel.CommunicationDisconnected, true);
-            Device.ControlState = ControlStateModel.ControlHostOffLine;
-            Device.IsSelected = false;
             if (_host != null)
             {
                 _host.Close();
@@ -115,62 +114,66 @@ namespace SecsGem.NetCore
             }
         }
 
-        internal async Task<bool> SetCommunicationState(CommunicationStateModel state, bool force = false)
-        {
-            if (state == Device.CommunicationState) return true;
-            var evt = await Emit(new SecsGemCommunicationStateChangeEvent
-            {
-                OldState = Device.CommunicationState,
-                NewState = state,
-            });
-            if (evt.Accept || force)
-                Device.CommunicationState = state;
-
-            return evt.Accept;
-        }
-
         private async Task SecsGemClientWorker()
         {
-            await SetCommunicationState(CommunicationStateModel.CommunicationOffline, true);
+            await State.TriggerAsync(GemClientStateTrigger.Connect);
 
             try
             {
                 while (!_cts.IsCancellationRequested && _tcp.Online)
                 {
-                    if (!Device.IsSelected)
+                    switch (State.Current)
                     {
-                        var success = await Function.Select(_cts.Token);
-                        if (success)
-                        {
-                            _option.DebugLog("Selected");
-                            continue;
-                        }
-                        await Task.Delay(3000, _cts.Token);
-                    }
-                    else if (Device.CommunicationState != CommunicationStateModel.CommunicationOnline)
-                    {
-                        if (_option.ActiveConnect)
-                        {
-                            var success = await Function.CommunicationEstablish(_cts.Token);
-                            if (success)
+                        case GemClientStateModel.Connected:
                             {
-                                _option.DebugLog("Communication Established");
-                                continue;
+                                var success = await Function.Select(_cts.Token);
+                                if (success)
+                                {
+                                    _option.DebugLog("Selected");
+                                    continue;
+                                }
+                                else
+                                {
+                                    await Task.Delay(3000, _cts.Token);
+                                }
+                                break;
                             }
-                        }
 
-                        await Task.Delay(3000, _cts.Token);
-                    }
-                    else
-                    {
-                        await _tcp.SendAndWaitForReplyAsync(
-                               HsmsMessage.Builder
-                                   .Type(HsmsMessageType.LinkTestReq)
-                                   .Build(),
-                               _cts.Token
-                           );
+                        case GemClientStateModel.Selected:
+                            {
+                                if (_option.ActiveConnect)
+                                {
+                                    var success = await Function.CommunicationEstablish(_cts.Token);
+                                    if (success)
+                                    {
+                                        _option.DebugLog("Communication Established");
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    await Task.Delay(3000, _cts.Token);
+                                }
+                                break;
+                            }
 
-                        await Task.Delay(_option.TLinkTest, _cts.Token);
+                        case GemClientStateModel.ControlOffLine:
+                        case GemClientStateModel.ControlOnline:
+                            {
+                                await _tcp.SendAndWaitForReplyAsync(
+                                       HsmsMessage.Builder
+                                           .Type(HsmsMessageType.LinkTestReq)
+                                           .Build(),
+                                       _cts.Token
+                                   );
+
+                                await Task.Delay(_option.TLinkTest, _cts.Token);
+                                break;
+                            }
+
+                        default:
+                            await Task.Delay(1000, _cts.Token);
+                            break;
                     }
                 }
             }
@@ -187,7 +190,7 @@ namespace SecsGem.NetCore
                     });
                 }
 
-                await Disconnect();
+                await State.TriggerAsync(GemClientStateTrigger.Disconnect);
             }
             catch (Exception ex)
             {
@@ -197,7 +200,7 @@ namespace SecsGem.NetCore
                     Exception = new SecsGemException("SecsGemClientWorker Error", ex),
                 });
 
-                await Disconnect();
+                await State.TriggerAsync(GemClientStateTrigger.Disconnect);
             }
         }
 

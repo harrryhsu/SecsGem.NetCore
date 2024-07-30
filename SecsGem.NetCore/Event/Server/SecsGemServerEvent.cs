@@ -22,7 +22,7 @@ namespace SecsGem.NetCore.Event.Server
 
         Task TerminalDisplay(SecsGemTerminalDisplayEvent evt);
 
-        Task CommunicationStateChange(SecsGemCommunicationStateChangeEvent evt);
+        Task StateChange(SecsGemServerStateChangeEvent evt);
 
         Task OrphanMessage(SecsGemOrphanMessageEvent evt);
 
@@ -80,8 +80,8 @@ namespace SecsGem.NetCore.Event.Server
                     await _handler.TerminalDisplay(e as SecsGemTerminalDisplayEvent);
                     break;
 
-                case SecsGemEventType.CommunicationStateChange:
-                    await _handler.CommunicationStateChange(e as SecsGemCommunicationStateChangeEvent);
+                case SecsGemEventType.StateChange:
+                    await _handler.StateChange(e as SecsGemServerStateChangeEvent);
                     break;
 
                 case SecsGemEventType.OrphanMessage:

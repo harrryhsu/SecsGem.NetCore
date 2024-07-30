@@ -1,7 +1,7 @@
 ﻿using SecsGem.NetCore.Event.Common;
 using SecsGem.NetCore.Feature.Server;
 
-namespace SecsGem.NetCore.Event.Server
+namespace SecsGem.NetCore.Event.Client
 {
     public class SecsGemCollectionEventEvent : SecsGemEvent
     {

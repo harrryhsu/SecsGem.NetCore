@@ -1,5 +1,6 @@
-﻿using SecsGem.NetCore.Event.Common;
-using SecsGem.NetCore.Event.Server;
+﻿using SecsGem.NetCore.Event.Client;
+using SecsGem.NetCore.Event.Common;
+using SecsGem.NetCore.Feature.Client;
 using SecsGem.NetCore.Feature.Server;
 using SecsGem.NetCore.Hsms;
 
@@ -9,8 +10,8 @@ namespace SecsGem.NetCore.Handler.Client
     {
         public async Task S1F13(SecsGemClientRequestContext req)
         {
-            var success = await req.Kernel.SetCommunicationState(CommunicationStateModel.CommunicationOnline);
-            byte res = (byte)(success ? 0 : 1);
+            var success = await req.Kernel.State.TriggerAsync(GemClientStateTrigger.EstablishCommunication);
+            var res = (byte)(success ? 0 : 1);
 
             await req.ReplyAsync(
                 HsmsMessage.Builder

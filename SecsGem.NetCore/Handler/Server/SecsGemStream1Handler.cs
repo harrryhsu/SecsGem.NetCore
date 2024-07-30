@@ -8,14 +8,14 @@ namespace SecsGem.NetCore.Handler.Server
     {
         public async Task S1F1(SecsGemServerRequestContext req)
         {
-            if (req.Kernel.Device.ControlState.CanGoOnline)
+            if (req.Kernel.State.IsMoreThan(GemServerStateModel.ControlOnlineLocal))
             {
                 await req.ReplyAsync(
                     HsmsMessage.Builder
                         .Reply(req.Message)
                         .Item(new ListDataItem(
-                            new ADataItem(req.Kernel.Device.Model),
-                            new ADataItem(req.Kernel.Device.Revision)
+                            new ADataItem(req.Kernel.Feature.Device.Model),
+                            new ADataItem(req.Kernel.Feature.Device.Revision)
                         ))
                         .Build()
                 );
@@ -93,8 +93,8 @@ namespace SecsGem.NetCore.Handler.Server
 
         public async Task S1F13(SecsGemServerRequestContext req)
         {
-            var success = await req.Kernel.SetCommunicationState(CommunicationStateModel.CommunicationOnline);
-            byte res = (byte)(success ? 0 : 1);
+            var success = await req.Kernel.State.TriggerAsync(GemServerStateTrigger.EstablishCommunication);
+            var res = (byte)(success ? 0 : 1);
 
             await req.ReplyAsync(
                 HsmsMessage.Builder
@@ -102,8 +102,8 @@ namespace SecsGem.NetCore.Handler.Server
                     .Item(new ListDataItem(
                         new BinDataItem(res),
                         new ListDataItem(
-                            new ADataItem(req.Kernel.Device.Model),
-                            new ADataItem(req.Kernel.Device.Revision)
+                            new ADataItem(req.Kernel.Feature.Device.Model),
+                            new ADataItem(req.Kernel.Feature.Device.Revision)
                         )
                     ))
                     .Build()
@@ -112,7 +112,7 @@ namespace SecsGem.NetCore.Handler.Server
 
         public async Task S1F15(SecsGemServerRequestContext req)
         {
-            req.Kernel.Device.ControlState.ChangeControlState(ControlStateModel.ControlHostOffLine);
+            await req.Kernel.State.TriggerAsync(GemServerStateTrigger.GoOffline);
             await req.ReplyAsync(
                 HsmsMessage.Builder
                     .Reply(req.Message)
@@ -123,11 +123,12 @@ namespace SecsGem.NetCore.Handler.Server
 
         public async Task S1F17(SecsGemServerRequestContext req)
         {
-            var res = req.Kernel.Device.ControlState.GoOnline();
+            var success = await req.Kernel.State.TriggerAsync(GemServerStateTrigger.GoOnline);
+            var res = (byte)(success ? 0 : 1);
             await req.ReplyAsync(
                 HsmsMessage.Builder
                     .Reply(req.Message)
-                    .Item(new BinDataItem((byte)res))
+                    .Item(new BinDataItem(res))
                     .Build()
             );
         }

@@ -10,20 +10,13 @@
     <Authors>Harry Hsu</Authors>
     <Description>SecsGem .NetCore implementation</Description>
     <Copyright>Copyright 2024 Harry Hsu</Copyright>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile></PackageReadmeFile>
     <RepositoryUrl>https://github.com/harrryhsu/SecsGem.NetCore</RepositoryUrl>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile></PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Include="..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
+    <PackageReference Include="Stateless" Version="5.16.0" />
   </ItemGroup>
 
 </Project>

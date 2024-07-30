@@ -1,6 +1,6 @@
 ﻿using SecsGem.NetCore.Event.Common;
 
-namespace SecsGem.NetCore.Event.Server
+namespace SecsGem.NetCore.Event.Client
 {
     public class SecsGemNotifyExceptionEvent : SecsGemEvent
     {

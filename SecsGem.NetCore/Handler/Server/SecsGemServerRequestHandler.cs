@@ -47,7 +47,12 @@ namespace SecsGem.NetCore.Handler.Server
                 });
         }
 
-        public async Task Handle(SecsGemTcpClient sender, TcpConnection con, SecsGemServer kernel, HsmsMessage message)
+        public void Register(int stream, int function, Func<SecsGemServerRequestContext, Task> handler)
+        {
+            _handlers[$"S{stream}F{function}"] = handler;
+        }
+
+        internal async Task Handle(SecsGemTcpClient sender, TcpConnection con, SecsGemServer kernel, HsmsMessage message)
         {
             var req = new SecsGemServerRequestContext
             {
@@ -62,7 +67,7 @@ namespace SecsGem.NetCore.Handler.Server
                 case HsmsMessageType.DataMessage:
 
                     var shortName = message.ToShortName();
-                    if (!kernel.Device.ControlState.IsControlOnline)
+                    if (!kernel.State.IsMoreThan(GemServerStateModel.ControlOnlineLocal))
                     {
                         if (shortName != "S1F13" && shortName != "S1F17" && shortName != "S1F1")
                         {
@@ -140,7 +145,7 @@ namespace SecsGem.NetCore.Handler.Server
                     break;
 
                 case HsmsMessageType.SelectReq:
-                    if (req.Kernel.Device.CommunicationState != CommunicationStateModel.CommunicationOnline)
+                    if (req.Kernel.State.Current == GemServerStateModel.Connected)
                     {
                         await req.ReplyAsync(
                             HsmsMessage.Builder
@@ -149,7 +154,7 @@ namespace SecsGem.NetCore.Handler.Server
                                 .Type(HsmsMessageType.SelectRsp)
                                 .Build()
                         );
-                        kernel.Device.IsSelected = true;
+                        await req.Kernel.State.TriggerAsync(GemServerStateTrigger.Select);
                     }
                     else
                     {
@@ -164,7 +169,7 @@ namespace SecsGem.NetCore.Handler.Server
                     break;
 
                 case HsmsMessageType.SeparateReq:
-                    await req.Kernel.Disconnect();
+                    await req.Kernel.State.TriggerAsync(GemServerStateTrigger.Disconnect);
                     break;
 
                 case HsmsMessageType.DeselectReq:
@@ -175,7 +180,7 @@ namespace SecsGem.NetCore.Handler.Server
                             .Type(HsmsMessageType.DeselectRsp)
                             .Build()
                     );
-                    await req.Kernel.Disconnect();
+                    await req.Kernel.State.TriggerAsync(GemServerStateTrigger.Deselect);
                     break;
 
                 case HsmsMessageType.LinkTestReq:

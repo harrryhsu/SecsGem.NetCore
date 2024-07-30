@@ -1,5 +1,6 @@
 ﻿using SecsGem.NetCore.Connection;
 using SecsGem.NetCore.Event.Common;
+using SecsGem.NetCore.Feature.Client;
 using SecsGem.NetCore.Feature.Server;
 using SecsGem.NetCore.Hsms;
 using static SecsGem.NetCore.Handler.Server.SecsGemStream2Handler;
@@ -38,7 +39,7 @@ namespace SecsGem.NetCore.Function
             }
             else
             {
-                _kernel.Device.IsSelected = true;
+                await _kernel.State.TriggerAsync(GemClientStateTrigger.Select);
                 return true;
             }
         }
@@ -51,6 +52,7 @@ namespace SecsGem.NetCore.Function
                     .Build(),
                 ct
             );
+            await _kernel.State.TriggerAsync(GemClientStateTrigger.Deselect);
         }
 
         public async Task Separate(CancellationToken ct = default)
@@ -58,12 +60,15 @@ namespace SecsGem.NetCore.Function
             try
             {
                 if (_tcp.Online)
+                {
                     await _tcp.SendAsync(
-                        HsmsMessage.Builder
-                            .Type(HsmsMessageType.SeparateReq)
-                            .Build(),
-                        ct
-                    );
+                       HsmsMessage.Builder
+                           .Type(HsmsMessageType.SeparateReq)
+                           .Build(),
+                       ct
+                   );
+                    await _kernel.State.TriggerAsync(GemClientStateTrigger.Disconnect);
+                }
             }
             catch { }
         }
@@ -89,7 +94,7 @@ namespace SecsGem.NetCore.Function
             }
             else
             {
-                await _kernel.SetCommunicationState(CommunicationStateModel.CommunicationOnline, true);
+                await _kernel.State.TriggerAsync(GemClientStateTrigger.EstablishCommunication);
                 _kernel.Device.Model = msg.Root[1][0].GetString();
                 _kernel.Device.Revision = msg.Root[1][1].GetString();
                 return true;
@@ -126,7 +131,7 @@ namespace SecsGem.NetCore.Function
                ct
             );
 
-            _kernel.Device.ControlState = ControlStateModel.ControlHostOffLine;
+            await _kernel.State.TriggerAsync(GemClientStateTrigger.GoOffline);
         }
 
         public async Task<bool> ControlOnline(CancellationToken ct = default)
@@ -141,7 +146,9 @@ namespace SecsGem.NetCore.Function
             var ack = msg.Root.GetBin() != 1;
 
             if (ack)
-                _kernel.Device.ControlState = ControlStateModel.ControlOnline;
+            {
+                await _kernel.State.TriggerAsync(GemClientStateTrigger.GoOnline);
+            }
 
             return ack;
         }

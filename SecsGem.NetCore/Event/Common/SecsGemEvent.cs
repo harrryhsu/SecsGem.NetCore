@@ -20,9 +20,7 @@
 
         TerminalDisplay,
 
-        ControlStateChange,
-
-        CommunicationStateChange,
+        StateChange,
 
         OrphanMessage,
 
