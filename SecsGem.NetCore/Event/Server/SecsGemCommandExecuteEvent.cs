@@ -1,6 +1,6 @@
-﻿using SecsGem.NetCore.Event.Common;
+﻿using SecsGem.NetCore.Enum;
+using SecsGem.NetCore.Event.Common;
 using SecsGem.NetCore.Feature.Server;
-using static SecsGem.NetCore.Handler.Server.SecsGemStream2Handler;
 
 namespace SecsGem.NetCore.Event.Server
 {
@@ -12,6 +12,6 @@ namespace SecsGem.NetCore.Event.Server
 
         public Dictionary<string, string> Params = new();
 
-        public S2F42_HCACK Return { get; set; } = S2F42_HCACK.Ok;
+        public SECS_RESPONSE.HCACK Return { get; set; } = SECS_RESPONSE.HCACK.Ok;
     }
 }

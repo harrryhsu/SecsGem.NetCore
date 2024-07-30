@@ -1,4 +1,5 @@
-﻿using SecsGem.NetCore.Event.Server;
+﻿using SecsGem.NetCore.Enum;
+using SecsGem.NetCore.Event.Server;
 using SecsGem.NetCore.Feature.Server;
 using SecsGem.NetCore.Hsms;
 using System.Globalization;
@@ -36,17 +37,6 @@ namespace SecsGem.NetCore.Handler.Server
             );
         }
 
-        public enum S2F15_EAC
-        {
-            Ok = 0,
-
-            OneOrMoreConstantDoNotExist,
-
-            Busy,
-
-            OneOrMoreValueOutOfRange
-        }
-
         public async Task S2F15(SecsGemServerRequestContext req)
         {
             List<EquipmentConstant> ecs = new();
@@ -58,7 +48,7 @@ namespace SecsGem.NetCore.Handler.Server
                     await req.ReplyAsync(
                         HsmsMessage.Builder
                             .Reply(req.Message)
-                            .Item(new BinDataItem((byte)S2F15_EAC.OneOrMoreValueOutOfRange))
+                            .Item(new BinDataItem((byte)SECS_RESPONSE.EAC.OneOrMoreValueOutOfRange))
                             .Build()
                     );
                     return;
@@ -70,7 +60,7 @@ namespace SecsGem.NetCore.Handler.Server
                     await req.ReplyAsync(
                         HsmsMessage.Builder
                             .Reply(req.Message)
-                            .Item(new BinDataItem((byte)S2F15_EAC.OneOrMoreConstantDoNotExist))
+                            .Item(new BinDataItem((byte)SECS_RESPONSE.EAC.OneOrMoreConstantDoNotExist))
                             .Build()
                     );
                     return;
@@ -81,7 +71,7 @@ namespace SecsGem.NetCore.Handler.Server
                     await req.ReplyAsync(
                         HsmsMessage.Builder
                             .Reply(req.Message)
-                            .Item(new BinDataItem((byte)S2F15_EAC.OneOrMoreValueOutOfRange))
+                            .Item(new BinDataItem((byte)SECS_RESPONSE.EAC.OneOrMoreValueOutOfRange))
                             .Build()
                     );
                     return;
@@ -99,7 +89,7 @@ namespace SecsGem.NetCore.Handler.Server
             await req.ReplyAsync(
                 HsmsMessage.Builder
                     .Reply(req.Message)
-                    .Item(new BinDataItem((byte)S2F15_EAC.Ok))
+                    .Item(new BinDataItem((byte)SECS_RESPONSE.EAC.Ok))
                     .Build()
             );
         }
@@ -165,19 +155,6 @@ namespace SecsGem.NetCore.Handler.Server
             );
         }
 
-        public enum S2F34_DRACK
-        {
-            Ok = 0,
-
-            OutOfSpace,
-
-            InvalidFormat,
-
-            AlreadyDefined,
-
-            InvalidVid,
-        }
-
         public async Task S2F33(SecsGemServerRequestContext req)
         {
             var dataId = req.Message.Root[0].GetU4();
@@ -191,7 +168,7 @@ namespace SecsGem.NetCore.Handler.Server
                 await req.ReplyAsync(
                     HsmsMessage.Builder
                         .Reply(req.Message)
-                        .Item(new BinDataItem((byte)S2F34_DRACK.Ok))
+                        .Item(new BinDataItem((byte)SECS_RESPONSE.DRACK.Ok))
                         .Build()
                 );
                 return;
@@ -213,7 +190,7 @@ namespace SecsGem.NetCore.Handler.Server
                         await req.ReplyAsync(
                            HsmsMessage.Builder
                                .Reply(req.Message)
-                               .Item(new BinDataItem((byte)S2F34_DRACK.InvalidFormat))
+                               .Item(new BinDataItem((byte)SECS_RESPONSE.DRACK.InvalidFormat))
                                .Build()
                         );
                         return;
@@ -230,7 +207,7 @@ namespace SecsGem.NetCore.Handler.Server
                         await req.ReplyAsync(
                            HsmsMessage.Builder
                                .Reply(req.Message)
-                               .Item(new BinDataItem((byte)S2F34_DRACK.AlreadyDefined))
+                               .Item(new BinDataItem((byte)SECS_RESPONSE.DRACK.AlreadyDefined))
                                .Build()
                         );
                         return;
@@ -240,7 +217,7 @@ namespace SecsGem.NetCore.Handler.Server
                         await req.ReplyAsync(
                           HsmsMessage.Builder
                               .Reply(req.Message)
-                              .Item(new BinDataItem((byte)S2F34_DRACK.InvalidVid))
+                              .Item(new BinDataItem((byte)SECS_RESPONSE.DRACK.InvalidVid))
                               .Build()
                         );
                         return;
@@ -269,24 +246,9 @@ namespace SecsGem.NetCore.Handler.Server
             await req.ReplyAsync(
                 HsmsMessage.Builder
                     .Reply(req.Message)
-                    .Item(new BinDataItem((byte)S2F34_DRACK.Ok))
+                    .Item(new BinDataItem((byte)SECS_RESPONSE.DRACK.Ok))
                     .Build()
             );
-        }
-
-        public enum S2F36_LRACK
-        {
-            Ok = 0,
-
-            OutOfSpace,
-
-            InvalidFormat,
-
-            OneOrMoreCeidAlreadyDefined,
-
-            OneOrMoreCeidInvalid,
-
-            OneOrMoreRptidInvalid,
         }
 
         public async Task S2F35(SecsGemServerRequestContext req)
@@ -300,7 +262,7 @@ namespace SecsGem.NetCore.Handler.Server
                 await req.ReplyAsync(
                    HsmsMessage.Builder
                        .Reply(req.Message)
-                       .Item(new BinDataItem((byte)S2F36_LRACK.Ok))
+                       .Item(new BinDataItem((byte)SECS_RESPONSE.LRACK.Ok))
                        .Build()
                 );
                 return;
@@ -317,7 +279,7 @@ namespace SecsGem.NetCore.Handler.Server
                     await req.ReplyAsync(
                         HsmsMessage.Builder
                             .Reply(req.Message)
-                            .Item(new BinDataItem((byte)S2F36_LRACK.OneOrMoreCeidInvalid))
+                            .Item(new BinDataItem((byte)SECS_RESPONSE.LRACK.OneOrMoreCeidInvalid))
                             .Build()
                     );
                     return;
@@ -327,7 +289,7 @@ namespace SecsGem.NetCore.Handler.Server
                     await req.ReplyAsync(
                         HsmsMessage.Builder
                             .Reply(req.Message)
-                            .Item(new BinDataItem((byte)S2F36_LRACK.OneOrMoreRptidInvalid))
+                            .Item(new BinDataItem((byte)SECS_RESPONSE.LRACK.OneOrMoreRptidInvalid))
                             .Build()
                     );
                     return;
@@ -342,7 +304,7 @@ namespace SecsGem.NetCore.Handler.Server
                             await req.ReplyAsync(
                                 HsmsMessage.Builder
                                     .Reply(req.Message)
-                                    .Item(new BinDataItem((byte)S2F36_LRACK.OneOrMoreCeidAlreadyDefined))
+                                    .Item(new BinDataItem((byte)SECS_RESPONSE.LRACK.OneOrMoreCeidAlreadyDefined))
                                     .Build()
                             );
                             return;
@@ -374,7 +336,7 @@ namespace SecsGem.NetCore.Handler.Server
             await req.ReplyAsync(
                 HsmsMessage.Builder
                     .Reply(req.Message)
-                    .Item(new BinDataItem((byte)S2F36_LRACK.Ok))
+                    .Item(new BinDataItem((byte)SECS_RESPONSE.LRACK.Ok))
                     .Build()
             );
         }
@@ -398,33 +360,16 @@ namespace SecsGem.NetCore.Handler.Server
             );
         }
 
-        public enum S2F42_HCACK
-        {
-            Ok = 0,
-
-            InvalidCommand,
-
-            CannotDoNow,
-
-            ParameterError,
-
-            AsyncCompletion,
-
-            Rejected,
-
-            InvalidObject
-        }
-
         public async Task S2F41(SecsGemServerRequestContext req)
         {
             var cmd = req.Message.Root[0].GetString();
             var param = req.Message.Root[1].GetListItem().ToDictionary(x => x[0].GetString(), x => x[1].GetString());
             var existing = req.Kernel.Feature.Commands.FirstOrDefault(x => x.Name == cmd);
-            S2F42_HCACK ret;
+            SECS_RESPONSE.HCACK ret;
 
             if (existing == null)
             {
-                ret = S2F42_HCACK.InvalidCommand;
+                ret = SECS_RESPONSE.HCACK.InvalidCommand;
             }
             else
             {

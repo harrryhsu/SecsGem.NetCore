@@ -1,10 +1,9 @@
 ﻿using SecsGem.NetCore.Connection;
+using SecsGem.NetCore.Enum;
 using SecsGem.NetCore.Event.Common;
 using SecsGem.NetCore.Feature.Client;
 using SecsGem.NetCore.Feature.Server;
 using SecsGem.NetCore.Hsms;
-using static SecsGem.NetCore.Handler.Server.SecsGemStream2Handler;
-using static SecsGem.NetCore.Handler.Server.SecsGemStream7Handler;
 
 namespace SecsGem.NetCore.Function
 {
@@ -227,7 +226,7 @@ namespace SecsGem.NetCore.Function
             return dvs;
         }
 
-        public async Task<S2F15_EAC> EquipmentConstantSet(IEnumerable<EquipmentConstant> ecs, CancellationToken ct = default)
+        public async Task<SECS_RESPONSE.EAC> EquipmentConstantSet(IEnumerable<EquipmentConstant> ecs, CancellationToken ct = default)
         {
             if (!ecs.Any()) return 0;
 
@@ -245,7 +244,7 @@ namespace SecsGem.NetCore.Function
                 ct
             );
 
-            return (S2F15_EAC)msg.Root.GetBin();
+            return (SECS_RESPONSE.EAC)msg.Root.GetBin();
         }
 
         public async Task<IEnumerable<EquipmentConstant>> EquipmentConstantDefinitionGet(IEnumerable<uint> ids = null, CancellationToken ct = default)
@@ -336,7 +335,7 @@ namespace SecsGem.NetCore.Function
             return dvs;
         }
 
-        public async Task<S2F34_DRACK> CollectionReportDefine(uint dataId, IEnumerable<CollectionReport> report, CancellationToken ct = default)
+        public async Task<SECS_RESPONSE.DRACK> CollectionReportDefine(uint dataId, IEnumerable<CollectionReport> report, CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -363,11 +362,11 @@ namespace SecsGem.NetCore.Function
                 ct
             );
 
-            var ack = (S2F34_DRACK)msg.Root.GetBin();
+            var ack = (SECS_RESPONSE.DRACK)msg.Root.GetBin();
             return ack;
         }
 
-        public async Task<S2F36_LRACK> CollectionReportLink(uint dataId, IEnumerable<CollectionEvent> ces, CancellationToken ct = default)
+        public async Task<SECS_RESPONSE.LRACK> CollectionReportLink(uint dataId, IEnumerable<CollectionEvent> ces, CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -394,7 +393,7 @@ namespace SecsGem.NetCore.Function
                 ct
             );
 
-            var ack = (S2F36_LRACK)msg.Root.GetBin();
+            var ack = (SECS_RESPONSE.LRACK)msg.Root.GetBin();
             return ack;
         }
 
@@ -504,7 +503,7 @@ namespace SecsGem.NetCore.Function
             return res;
         }
 
-        public async Task<S2F42_HCACK> CommandSend(string name, Dictionary<string, string> param, CancellationToken ct = default)
+        public async Task<SECS_RESPONSE.HCACK> CommandSend(string name, Dictionary<string, string> param, CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -525,7 +524,7 @@ namespace SecsGem.NetCore.Function
                 ct
             );
 
-            var ack = (S2F42_HCACK)msg.Root[0].GetBin();
+            var ack = (SECS_RESPONSE.HCACK)msg.Root[0].GetBin();
             return ack;
         }
 
@@ -620,7 +619,7 @@ namespace SecsGem.NetCore.Function
             return alarms;
         }
 
-        public async Task<S7F2_PPGNT> ProcessProgramGrant(string id, uint length, CancellationToken ct = default)
+        public async Task<SECS_RESPONSE.PPGNT> ProcessProgramGrant(string id, uint length, CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -636,11 +635,11 @@ namespace SecsGem.NetCore.Function
                 ct
             );
 
-            var ack = (S7F2_PPGNT)msg.Root.GetBin();
+            var ack = (SECS_RESPONSE.PPGNT)msg.Root.GetBin();
             return ack;
         }
 
-        public async Task<S7F4_ACKC7> ProcessProgramLoad(string id, byte[] body, CancellationToken ct = default)
+        public async Task<SECS_RESPONSE.ACKC7> ProcessProgramLoad(string id, byte[] body, CancellationToken ct = default)
         {
             var msg = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -656,7 +655,7 @@ namespace SecsGem.NetCore.Function
                 ct
             );
 
-            var ack = (S7F4_ACKC7)msg.Root.GetBin();
+            var ack = (SECS_RESPONSE.ACKC7)msg.Root.GetBin();
             return ack;
         }
 
@@ -696,7 +695,7 @@ namespace SecsGem.NetCore.Function
             return ppids;
         }
 
-        public async Task<S7F4_ACKC7> ProcessProgramDelete(IEnumerable<string> ids = null, CancellationToken ct = default)
+        public async Task<SECS_RESPONSE.ACKC7> ProcessProgramDelete(IEnumerable<string> ids = null, CancellationToken ct = default)
         {
             if (ids == null) ids = Array.Empty<string>();
 
@@ -711,7 +710,7 @@ namespace SecsGem.NetCore.Function
                 ct
             );
 
-            var ack = (S7F4_ACKC7)msg.Root.GetBin();
+            var ack = (SECS_RESPONSE.ACKC7)msg.Root.GetBin();
             return ack;
         }
     }

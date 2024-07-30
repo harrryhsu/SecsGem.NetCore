@@ -1,27 +1,11 @@
-﻿using SecsGem.NetCore.Feature.Server;
+﻿using SecsGem.NetCore.Enum;
+using SecsGem.NetCore.Feature.Server;
 using SecsGem.NetCore.Hsms;
 
 namespace SecsGem.NetCore.Handler.Server
 {
     public class SecsGemStream7Handler : ISecsGemServerStreamHandler
     {
-        public enum S7F2_PPGNT
-        {
-            Ok = 0,
-
-            AlreadyHave,
-
-            NoSpace,
-
-            InvalidPPID,
-
-            Busy,
-
-            WillNotAccept,
-
-            OtherError
-        }
-
         public async Task S7F1(SecsGemServerRequestContext req)
         {
             var id = req.Message.Root[0].GetString();
@@ -34,28 +18,9 @@ namespace SecsGem.NetCore.Handler.Server
             await req.ReplyAsync(
                 HsmsMessage.Builder
                     .Reply(req.Message)
-                    .Item(new BinDataItem((byte)(pp != null ? S7F2_PPGNT.AlreadyHave : S7F2_PPGNT.Ok)))
+                    .Item(new BinDataItem((byte)(pp != null ? SECS_RESPONSE.PPGNT.AlreadyHave : SECS_RESPONSE.PPGNT.Ok)))
                     .Build()
             );
-        }
-
-        public enum S7F4_ACKC7
-        {
-            Accept = 0,
-
-            PermissionNotGranted,
-
-            LengthError,
-
-            MatrixOverflow,
-
-            PPIDNotFound,
-
-            UnSupportedMode,
-
-            AsyncCompletion,
-
-            StorageLimitError
         }
 
         public async Task S7F3(SecsGemServerRequestContext req)
@@ -72,7 +37,7 @@ namespace SecsGem.NetCore.Handler.Server
             await req.ReplyAsync(
                 HsmsMessage.Builder
                     .Reply(req.Message)
-                    .Item(new BinDataItem((byte)(pp != null ? S7F4_ACKC7.Accept : S7F4_ACKC7.PPIDNotFound)))
+                    .Item(new BinDataItem((byte)(pp != null ? SECS_RESPONSE.ACKC7.Accept : SECS_RESPONSE.ACKC7.PPIDNotFound)))
                     .Build()
             );
         }
@@ -108,7 +73,7 @@ namespace SecsGem.NetCore.Handler.Server
                     await req.ReplyAsync(
                         HsmsMessage.Builder
                             .Reply(req.Message)
-                            .Item(new BinDataItem((byte)S7F4_ACKC7.PPIDNotFound))
+                            .Item(new BinDataItem((byte)SECS_RESPONSE.ACKC7.PPIDNotFound))
                             .Build()
                     );
                     return;
@@ -123,7 +88,7 @@ namespace SecsGem.NetCore.Handler.Server
             await req.ReplyAsync(
                 HsmsMessage.Builder
                     .Reply(req.Message)
-                    .Item(new BinDataItem((byte)S7F4_ACKC7.Accept))
+                    .Item(new BinDataItem((byte)SECS_RESPONSE.ACKC7.Accept))
                     .Build()
             );
         }
