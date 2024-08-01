@@ -77,7 +77,7 @@ namespace SecsGem.NetCore
                 else
                 {
                     _host = con;
-                    await State.TriggerAsync(GemServerStateTrigger.Connect);
+                    await State.TriggerAsync(GemServerStateTrigger.Connect, true);
                     _ = Task.Run(() => SecsGemServerWorker(con));
                 }
             });
@@ -157,7 +157,7 @@ namespace SecsGem.NetCore
                                 {
                                     Message = "T7 Timeout"
                                 });
-                                await State.TriggerAsync(GemServerStateTrigger.Disconnect);
+                                await State.TriggerAsync(GemServerStateTrigger.Disconnect, true);
                                 return;
                             }
                             break;
@@ -205,7 +205,7 @@ namespace SecsGem.NetCore
                     });
                 }
 
-                await State.TriggerAsync(GemServerStateTrigger.Disconnect);
+                await State.TriggerAsync(GemServerStateTrigger.Disconnect, true);
             }
             catch (Exception ex)
             {
@@ -215,7 +215,7 @@ namespace SecsGem.NetCore
                     Exception = new SecsGemException("SecsGemWorker Error", ex),
                 });
 
-                await State.TriggerAsync(GemServerStateTrigger.Disconnect);
+                await State.TriggerAsync(GemServerStateTrigger.Disconnect, true);
             }
         }
 

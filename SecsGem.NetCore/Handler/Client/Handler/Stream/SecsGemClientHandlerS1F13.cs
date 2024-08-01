@@ -9,7 +9,7 @@ namespace SecsGem.NetCore.Handler.Server
     {
         public override async Task Execute()
         {
-            var success = await Context.Kernel.State.TriggerAsync(Feature.Client.GemClientStateTrigger.EstablishCommunication);
+            var success = await Context.Kernel.State.TriggerAsync(Feature.Client.GemClientStateTrigger.EstablishCommunication, false);
             var res = (byte)(success ? 0 : 1);
 
             await Context.ReplyAsync(

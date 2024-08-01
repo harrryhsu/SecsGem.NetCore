@@ -32,7 +32,7 @@ namespace SecsGem.NetCore.Function
             var ack = reply.Root[0].GetBin();
             if (ack == 0)
             {
-                await _kernel.State.TriggerAsync(GemServerStateTrigger.EstablishCommunication);
+                await _kernel.State.TriggerAsync(GemServerStateTrigger.EstablishCommunication, true);
                 return true;
             }
             else
@@ -183,12 +183,12 @@ namespace SecsGem.NetCore.Function
 
         public async Task<bool> GoOnlineRemote(CancellationToken ct = default)
         {
-            return await _kernel.State.TriggerAsync(GemServerStateTrigger.GoOnlineRemote);
+            return await _kernel.State.TriggerAsync(GemServerStateTrigger.GoOnlineRemote, false);
         }
 
         public async Task<bool> GoOnlineLocal(CancellationToken ct = default)
         {
-            return await _kernel.State.TriggerAsync(GemServerStateTrigger.GoOnlineLocal);
+            return await _kernel.State.TriggerAsync(GemServerStateTrigger.GoOnlineLocal, false);
         }
     }
 }

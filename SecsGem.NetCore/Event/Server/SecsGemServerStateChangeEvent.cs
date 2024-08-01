@@ -9,7 +9,11 @@ namespace SecsGem.NetCore.Event.Server
 
         public GemServerStateModel OldState { get; set; }
 
+        public GemServerStateTrigger Trigger { get; set; }
+
         public GemServerStateModel NewState { get; set; }
+
+        public bool Force { get; set; }
 
         public bool Accept { get; set; } = true;
     }

@@ -10,7 +10,7 @@ namespace SecsGem.NetCore.Handler.Server
     {
         public override async Task Execute()
         {
-            await Context.Kernel.State.TriggerAsync(GemServerStateTrigger.GoOffline);
+            await Context.Kernel.State.TriggerAsync(GemServerStateTrigger.GoOffline, true);
             await Context.ReplyAsync(
                 HsmsMessage.Builder
                     .Reply(Context.Message)

@@ -38,7 +38,7 @@ namespace SecsGem.NetCore.Function
             }
             else
             {
-                await _kernel.State.TriggerAsync(GemClientStateTrigger.Select);
+                await _kernel.State.TriggerAsync(GemClientStateTrigger.Select, true);
                 return true;
             }
         }
@@ -51,7 +51,7 @@ namespace SecsGem.NetCore.Function
                     .Build(),
                 ct
             );
-            await _kernel.State.TriggerAsync(GemClientStateTrigger.Deselect);
+            await _kernel.State.TriggerAsync(GemClientStateTrigger.Deselect, true);
         }
 
         public async Task Separate(CancellationToken ct = default)
@@ -65,8 +65,8 @@ namespace SecsGem.NetCore.Function
                            .Type(HsmsMessageType.SeparateReq)
                            .Build(),
                        ct
-                   );
-                    await _kernel.State.TriggerAsync(GemClientStateTrigger.Disconnect);
+                    );
+                    await _kernel.State.TriggerAsync(GemClientStateTrigger.Disconnect, true);
                 }
             }
             catch { }
@@ -93,7 +93,7 @@ namespace SecsGem.NetCore.Function
             }
             else
             {
-                await _kernel.State.TriggerAsync(GemClientStateTrigger.EstablishCommunication);
+                await _kernel.State.TriggerAsync(GemClientStateTrigger.EstablishCommunication, true);
                 _kernel.Device.Model = msg.Root[1][0].GetString();
                 _kernel.Device.Revision = msg.Root[1][1].GetString();
                 return true;
@@ -130,7 +130,7 @@ namespace SecsGem.NetCore.Function
                ct
             );
 
-            await _kernel.State.TriggerAsync(GemClientStateTrigger.GoOffline);
+            await _kernel.State.TriggerAsync(GemClientStateTrigger.GoOffline, true);
         }
 
         public async Task<bool> ControlOnline(CancellationToken ct = default)
@@ -146,7 +146,7 @@ namespace SecsGem.NetCore.Function
 
             if (ack)
             {
-                await _kernel.State.TriggerAsync(GemClientStateTrigger.GoOnline);
+                await _kernel.State.TriggerAsync(GemClientStateTrigger.GoOnline, true);
             }
 
             return ack;

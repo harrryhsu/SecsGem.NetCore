@@ -9,7 +9,7 @@ namespace SecsGem.NetCore.Handler.Server.Handler.Message
     {
         public override async Task Execute()
         {
-            await Context.Kernel.State.TriggerAsync(GemClientStateTrigger.Disconnect);
+            await Context.Kernel.State.TriggerAsync(GemClientStateTrigger.Disconnect, true);
         }
     }
 }

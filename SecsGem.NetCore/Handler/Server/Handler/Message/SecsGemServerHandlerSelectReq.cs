@@ -9,7 +9,9 @@ namespace SecsGem.NetCore.Handler.Server.Handler.Message
     {
         public override async Task Execute()
         {
-            if (Context.Kernel.State.Current == GemServerStateModel.Connected)
+            var res = await Context.Kernel.State.TriggerAsync(GemServerStateTrigger.Select, false);
+
+            if (res)
             {
                 await Context.ReplyAsync(
                     HsmsMessage.Builder
@@ -18,7 +20,6 @@ namespace SecsGem.NetCore.Handler.Server.Handler.Message
                         .Type(HsmsMessageType.SelectRsp)
                         .Build()
                 );
-                await Context.Kernel.State.TriggerAsync(GemServerStateTrigger.Select);
             }
             else
             {

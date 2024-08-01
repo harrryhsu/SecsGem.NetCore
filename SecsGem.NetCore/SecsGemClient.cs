@@ -116,7 +116,7 @@ namespace SecsGem.NetCore
 
         private async Task SecsGemClientWorker()
         {
-            await State.TriggerAsync(GemClientStateTrigger.Connect);
+            await State.TriggerAsync(GemClientStateTrigger.Connect, true);
 
             try
             {
@@ -190,7 +190,7 @@ namespace SecsGem.NetCore
                     });
                 }
 
-                await State.TriggerAsync(GemClientStateTrigger.Disconnect);
+                await State.TriggerAsync(GemClientStateTrigger.Disconnect, true);
             }
             catch (Exception ex)
             {
@@ -200,7 +200,7 @@ namespace SecsGem.NetCore
                     Exception = new SecsGemException("SecsGemClientWorker Error", ex),
                 });
 
-                await State.TriggerAsync(GemClientStateTrigger.Disconnect);
+                await State.TriggerAsync(GemClientStateTrigger.Disconnect, true);
             }
         }
 

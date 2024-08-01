@@ -1,4 +1,5 @@
-﻿using SecsGem.NetCore.Event.Server;
+﻿using SecsGem.NetCore.Event.Common;
+using SecsGem.NetCore.Event.Server;
 using Stateless;
 
 namespace SecsGem.NetCore.Feature.Server
@@ -43,6 +44,8 @@ namespace SecsGem.NetCore.Feature.Server
     {
         private readonly StateMachine<GemServerStateModel, GemServerStateTrigger> _state;
 
+        private readonly Dictionary<KeyValuePair<GemServerStateModel, GemServerStateTrigger>, GemServerStateModel> _transition = new();
+
         private readonly SecsGemServer _kernel;
 
         public GemServerStateModel Current => _state.State;
@@ -69,11 +72,7 @@ namespace SecsGem.NetCore.Feature.Server
                 .Permit(GemServerStateTrigger.Disconnect, GemServerStateModel.Disconnected);
 
             _state.Configure(GemServerStateModel.ControlOffLine)
-                .PermitIf(GemServerStateTrigger.GoOnline, GemServerStateModel.ControlOnlineRemote, () =>
-                {
-                    var res = _kernel.Emit(new SecsGemServerStateChangeEvent()).Result;
-                    return res.Accept;
-                })
+                .Permit(GemServerStateTrigger.GoOnline, GemServerStateModel.ControlOnlineRemote)
                 .Permit(GemServerStateTrigger.Deselect, GemServerStateModel.Connected)
                 .Permit(GemServerStateTrigger.Disconnect, GemServerStateModel.Disconnected);
 
@@ -88,6 +87,15 @@ namespace SecsGem.NetCore.Feature.Server
                 .Permit(GemServerStateTrigger.GoOnlineRemote, GemServerStateModel.ControlOnlineRemote)
                 .Permit(GemServerStateTrigger.Deselect, GemServerStateModel.Connected)
                 .Permit(GemServerStateTrigger.Disconnect, GemServerStateModel.Disconnected);
+
+            foreach (var state in _state.GetInfo().States)
+            {
+                foreach (var transition in state.FixedTransitions)
+                {
+                    var key = KeyValuePair.Create((GemServerStateModel)state.UnderlyingState, (GemServerStateTrigger)transition.Trigger.UnderlyingTrigger);
+                    _transition[key] = (GemServerStateModel)transition.DestinationState.UnderlyingState;
+                }
+            }
         }
 
         public bool IsExact(GemServerStateModel state)
@@ -104,10 +112,30 @@ namespace SecsGem.NetCore.Feature.Server
 
         public bool IsReadable => IsMoreThan(GemServerStateModel.ControlOnlineLocal);
 
-        public async Task<bool> TriggerAsync(GemServerStateTrigger trigger)
+        public async Task<bool> TriggerAsync(GemServerStateTrigger trigger, bool force)
         {
             try
             {
+                var key = KeyValuePair.Create(Current, trigger);
+                if (!_transition.TryGetValue(key, out var destination))
+                {
+                    await _kernel.Emit(new SecsGemErrorEvent
+                    {
+                        Message = $"Invalid state transition {Current}: {trigger}"
+                    });
+                    return false;
+                }
+
+                var res = await _kernel.Emit(new SecsGemServerStateChangeEvent
+                {
+                    OldState = Current,
+                    Trigger = trigger,
+                    NewState = destination,
+                    Force = force
+                });
+
+                if (!res.Accept && !force) return false;
+
                 await _state.FireAsync(trigger);
                 return true;
             }

@@ -9,7 +9,11 @@ namespace SecsGem.NetCore.Event.Client
 
         public GemClientStateModel OldState { get; set; }
 
+        public GemClientStateTrigger Trigger { get; set; }
+
         public GemClientStateModel NewState { get; set; }
+
+        public bool Force { get; set; }
 
         public bool Accept { get; set; } = true;
     }
