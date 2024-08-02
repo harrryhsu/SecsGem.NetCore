@@ -1,6 +1,6 @@
 using SecsGem.NetCore.Feature.Client;
 using SecsGem.NetCore.Feature.Server;
-using SecsGem.NetCore.Helper;
+using SecsGem.NetCore.Test.Helper;
 using System.Diagnostics;
 using System.Net;
 
@@ -38,7 +38,17 @@ namespace SecsGem.NetCore.Test
             await _server.StartAsync();
             await _client.ConnectAsync();
 
-            await TaskHelper.WaitFor(() => _client.State.IsExact(GemClientStateModel.ControlOffLine) && _server.State.IsExact(GemServerStateModel.ControlOffLine), 10, 100);
+            await AssertEx.DoesNotThrowAsync(async () =>
+            {
+                await _client.State.WaitForState(GemClientStateModel.ControlOffLine);
+                await _server.State.WaitForState(GemServerStateModel.ControlOffLine);
+            });
+
+            await AfterSetup();
+        }
+
+        protected virtual async Task AfterSetup()
+        {
             await _client.Function.ControlOnline();
         }
 

@@ -4,7 +4,6 @@ using SecsGem.NetCore.Event.Server;
 using SecsGem.NetCore.Feature.Server;
 using SecsGem.NetCore.Function;
 using SecsGem.NetCore.Handler.Server;
-using SecsGem.NetCore.Helper;
 using SecsGem.NetCore.Hsms;
 using SecsGem.NetCore.Mutex;
 using TrafficCom.V3.Connection;
@@ -147,7 +146,7 @@ namespace SecsGem.NetCore
                             try
                             {
                                 if (_option.T7 < 100) _option.T7 = 100;
-                                await TaskHelper.WaitFor(() => State.IsMoreThan(GemServerStateModel.Selected), _option.T7 / 10, 10, _cts.Token);
+                                await State.WaitForState(GemServerStateModel.Selected, ct: _cts.Token);
                                 _option.DebugLog("Selected");
                             }
                             catch (TimeoutException)

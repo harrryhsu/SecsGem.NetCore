@@ -5,7 +5,7 @@ namespace SecsGem.NetCore.Test.Test
 {
     public class StatusVariableTest : SecsGemTestBase
     {
-        public StatusVariable SV = new StatusVariable
+        public StatusVariable SV = new()
         {
             Id = 1,
             Name = "Test",

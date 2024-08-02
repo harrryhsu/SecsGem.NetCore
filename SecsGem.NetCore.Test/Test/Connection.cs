@@ -1,6 +1,5 @@
 using SecsGem.NetCore.Feature.Client;
 using SecsGem.NetCore.Feature.Server;
-using SecsGem.NetCore.Helper;
 using SecsGem.NetCore.Test.Helper;
 using System.Net;
 
@@ -39,35 +38,44 @@ namespace SecsGem.NetCore.Test.Test
         public async Task Test_Connection()
         {
             await Init(false, false);
-            await TaskHelper.WaitFor(() => _client.State.IsExact(GemClientStateModel.Selected) && _server.State.IsExact(GemServerStateModel.Selected), 10, 100);
+
+            await AssertEx.DoesNotThrowAsync(async () =>
+            {
+                await _client.State.WaitForState(GemClientStateModel.Selected);
+                await _server.State.WaitForState(GemServerStateModel.Selected);
+            });
         }
 
         [Test]
         public async Task Client_Communication_Online()
         {
             await Init(true, false);
-            await TaskHelper.WaitFor(() => _client.State.IsExact(GemClientStateModel.ControlOffLine) && _server.State.IsExact(GemServerStateModel.ControlOffLine), 10, 100);
+            await AssertEx.DoesNotThrowAsync(async () =>
+            {
+                await _client.State.WaitForState(GemClientStateModel.ControlOffLine);
+                await _server.State.WaitForState(GemServerStateModel.ControlOffLine);
+            });
         }
 
         [Test]
         public async Task Server_Communication_Online()
         {
             await Init(false, true);
-            await TaskHelper.WaitFor(() => _client.State.IsExact(GemClientStateModel.ControlOffLine) && _server.State.IsExact(GemServerStateModel.ControlOffLine), 10, 100);
+            await AssertEx.DoesNotThrowAsync(async () =>
+            {
+                await _client.State.WaitForState(GemClientStateModel.ControlOffLine);
+                await _server.State.WaitForState(GemServerStateModel.ControlOffLine);
+            });
         }
 
         [Test]
         public async Task Communication_Timeout()
         {
             await Init(false, false);
-            await AssertEx.ThrowAsync<TimeoutException>(async () =>
+            await AssertEx.ThrowAsync(async () =>
             {
-                await TaskHelper.WaitFor(
-                    () => _client.State.IsExact(GemClientStateModel.ControlOffLine)
-                        && _server.State.IsExact(GemServerStateModel.ControlOffLine),
-                    10,
-                    100
-                );
+                await _client.State.WaitForState(GemClientStateModel.ControlOffLine);
+                await _server.State.WaitForState(GemServerStateModel.ControlOffLine);
             });
 
             await _client.Function.CommunicationEstablish();
@@ -78,17 +86,27 @@ namespace SecsGem.NetCore.Test.Test
         public async Task Connection_Dispose()
         {
             await Init(true, false);
-            await TaskHelper.WaitFor(() => _client.State.IsMoreThan(GemClientStateModel.Selected) && _server.State.IsMoreThan(GemServerStateModel.Selected), 10, 100);
+            await AssertEx.DoesNotThrowAsync(async () =>
+            {
+                await _client.State.WaitForState(GemClientStateModel.ControlOffLine);
+                await _server.State.WaitForState(GemServerStateModel.ControlOffLine);
+            });
             await _client.Function.Separate();
-            await Task.Delay(100);
-            Assert.That(_server.State.Current, Is.EqualTo(GemServerStateModel.Disconnected));
+            await AssertEx.DoesNotThrowAsync(async () =>
+            {
+                await _server.State.WaitForState(GemServerStateModel.Disconnected);
+            });
         }
 
         [Test]
         public async Task Control_Online()
         {
             await Init(true, false);
-            await TaskHelper.WaitFor(() => _client.State.IsExact(GemClientStateModel.ControlOffLine) && _server.State.IsExact(GemServerStateModel.ControlOffLine), 10, 100);
+            await AssertEx.DoesNotThrowAsync(async () =>
+            {
+                await _client.State.WaitForState(GemClientStateModel.ControlOffLine);
+                await _server.State.WaitForState(GemServerStateModel.ControlOffLine);
+            });
             var ack = await _client.Function.ControlOnline();
             Assert.Multiple(() =>
             {

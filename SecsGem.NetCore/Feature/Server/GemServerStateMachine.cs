@@ -1,5 +1,6 @@
 ﻿using SecsGem.NetCore.Event.Common;
 using SecsGem.NetCore.Event.Server;
+using SecsGem.NetCore.Helper;
 using Stateless;
 
 namespace SecsGem.NetCore.Feature.Server
@@ -111,6 +112,11 @@ namespace SecsGem.NetCore.Feature.Server
         public bool IsOperable => IsExact(GemServerStateModel.ControlOnlineRemote);
 
         public bool IsReadable => IsMoreThan(GemServerStateModel.ControlOnlineLocal);
+
+        public async Task WaitForState(GemServerStateModel state, int timeoutMs = 1000, bool isIncremental = false, CancellationToken ct = default)
+        {
+            await TaskHelper.WaitFor(() => isIncremental ? IsMoreThan(state) : IsExact(state), timeoutMs / 100, 100, ct);
+        }
 
         public async Task<bool> TriggerAsync(GemServerStateTrigger trigger, bool force)
         {

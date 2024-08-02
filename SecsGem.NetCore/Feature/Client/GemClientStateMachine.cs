@@ -1,5 +1,6 @@
 ﻿using SecsGem.NetCore.Event.Client;
 using SecsGem.NetCore.Event.Common;
+using SecsGem.NetCore.Helper;
 using Stateless;
 
 namespace SecsGem.NetCore.Feature.Client
@@ -93,6 +94,11 @@ namespace SecsGem.NetCore.Feature.Client
         public bool IsMoreThan(GemClientStateModel state)
         {
             return Current >= state;
+        }
+
+        public async Task WaitForState(GemClientStateModel state, int timeoutMs = 1000, bool isIncremental = false, CancellationToken ct = default)
+        {
+            await TaskHelper.WaitFor(() => isIncremental ? IsMoreThan(state) : IsExact(state), timeoutMs / 100, 100, ct);
         }
 
         public async Task<bool> TriggerAsync(GemClientStateTrigger trigger, bool force)
