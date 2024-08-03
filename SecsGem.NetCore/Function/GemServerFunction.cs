@@ -63,7 +63,8 @@ namespace SecsGem.NetCore.Function
         {
             var alarm = _kernel.Feature.Alarms.FirstOrDefault(x => x.Id == id);
             if (alarm == null) throw new SecsGemException("Id not found");
-            if (!_kernel.State.IsReadable || !alarm.Enabled) throw new SecsGemInvalidOperationException();
+            if (!_kernel.State.IsReadable) throw new SecsGemInvalidOperationException();
+            if (!alarm.Enabled) return;
 
             await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -203,8 +204,7 @@ namespace SecsGem.NetCore.Function
         /// <exception cref="SecsGemTransactionException"></exception>
         public async Task Separate(CancellationToken ct = default)
         {
-            if (_kernel.State.IsExact(GemServerStateModel.Disconnected))
-                throw new SecsGemInvalidOperationException();
+            if (_kernel.State.IsExact(GemServerStateModel.Disconnected)) return;
 
             await _tcp.SendAsync(
                 HsmsMessage.Builder
