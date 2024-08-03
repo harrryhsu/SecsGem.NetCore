@@ -30,14 +30,9 @@ namespace SecsGem.NetCore.Hsms
             Root?.Write(buffer);
         }
 
-        public string ToShortNameWithContext()
+        public override string ToString()
         {
-            return $"Q{Header.Context >> 24}{ToShortName()}";
-        }
-
-        public string ToShortName()
-        {
-            return $"S{Header.S}F{Header.F}";
+            return $"Q{Header.Context}-S{Header.S}F{Header.F}";
         }
     }
 }

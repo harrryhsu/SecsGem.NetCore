@@ -32,7 +32,6 @@ namespace SecsGem.NetCore.Handler.Server.Handler.Message
 
         public override async Task Execute()
         {
-            var shortName = Context.Message.ToShortName();
             var handler = Context.Handlers.FirstOrDefault(x => x.IsMatch(Context.Message, false)) as SecsGemStreamHandlerCache;
 
             if ((int)Context.Kernel.State.Current < (int)handler.FunctionType)
@@ -50,14 +49,14 @@ namespace SecsGem.NetCore.Handler.Server.Handler.Message
             {
                 await Context.Kernel.Emit(new SecsGemErrorEvent
                 {
-                    Message = $"Reply error {shortName}",
+                    Message = $"Reply error {Context.Message}",
                 });
             }
             else if (Context.Message.Header.S == 0)
             {
                 await Context.Kernel.Emit(new SecsGemErrorEvent
                 {
-                    Message = $"Reply abort {shortName}",
+                    Message = $"Reply abort {Context.Message}",
                 });
             }
             else if (handler != null)
@@ -76,7 +75,7 @@ namespace SecsGem.NetCore.Handler.Server.Handler.Message
                 {
                     await Context.Kernel.Emit(new SecsGemErrorEvent
                     {
-                        Message = $"Error while handling Contextuest {shortName}: {ex}",
+                        Message = $"Error while handling Contextuest {Context.Message}: {ex}",
                     });
 
                     await Error(HsmsErrorCode.IllegalData);

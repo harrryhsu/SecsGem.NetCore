@@ -26,7 +26,7 @@ namespace SecsGem.NetCore.Handler.Common
 
         public async Task ReplyAsync(HsmsMessage msg)
         {
-            if (HasReplied) throw new NotImplementedException($"Replied has already been set: {Message.ToShortName()}");
+            if (HasReplied) throw new NotImplementedException($"Replied has already been set: {Message}");
             await Client.SendAsync(Connection, msg);
             HasReplied = true;
         }
