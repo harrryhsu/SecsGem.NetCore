@@ -1,4 +1,5 @@
-﻿using SecsGem.NetCore.Event.Common;
+﻿using SecsGem.NetCore.Enum;
+using SecsGem.NetCore.Event.Common;
 using SecsGem.NetCore.Event.Server;
 using SecsGem.NetCore.Hsms;
 using SecsGem.NetCore.State.Server;
@@ -66,10 +67,8 @@ namespace SecsGem.NetCore.Function
             );
         }
 
-        public async Task<bool> SendHostDisplay(byte id, string text, CancellationToken ct = default)
+        public async Task<SECS_RESPONSE.ACKC10> SendTerminal(byte id, string text, CancellationToken ct = default)
         {
-            if (!_kernel.State.IsReadable) return false;
-
             var reply = await _tcp.SendAndWaitForReplyAsync(
                   HsmsMessage.Builder
                       .Stream(10)
@@ -84,7 +83,7 @@ namespace SecsGem.NetCore.Function
                );
 
             var code = reply.Root.GetBin();
-            return code == 0x0;
+            return (SECS_RESPONSE.ACKC10)code;
         }
 
         public async Task SendCollectionEvent(uint id, CancellationToken ct = default)

@@ -18,6 +18,8 @@
 
         public List<ProcessProgram> ProcessPrograms { get; } = new();
 
+        public List<Terminal> Terminals { get; } = new();
+
         public GemServerDevice Device { get; } = new();
     }
 }

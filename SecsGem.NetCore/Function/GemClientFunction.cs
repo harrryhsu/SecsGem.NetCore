@@ -720,5 +720,61 @@ namespace SecsGem.NetCore.Function
             var msg = await _tcp.SendAndWaitForReplyAsync(message, ct);
             return msg;
         }
+
+        public async Task<SECS_RESPONSE.ACKC10> SendTerminal(byte id, string text, CancellationToken ct = default)
+        {
+            var reply = await _tcp.SendAndWaitForReplyAsync(
+                  HsmsMessage.Builder
+                      .Stream(10)
+                      .Func(3)
+                      .ReplyExpected()
+                      .Item(new ListDataItem(
+                          new BinDataItem(id),
+                          new ADataItem(text)
+                      ))
+                      .Build(),
+                  ct
+               );
+
+            var code = reply.Root.GetBin();
+            return (SECS_RESPONSE.ACKC10)code;
+        }
+
+        public async Task<SECS_RESPONSE.ACKC10> SendTerminalMulti(byte id, IEnumerable<string> texts, CancellationToken ct = default)
+        {
+            var reply = await _tcp.SendAndWaitForReplyAsync(
+                  HsmsMessage.Builder
+                      .Stream(10)
+                      .Func(5)
+                      .ReplyExpected()
+                      .Item(new ListDataItem(
+                          new BinDataItem(id),
+                          new ListDataItem(texts.Select(text => new ADataItem(text)))
+                      ))
+                      .Build(),
+                  ct
+               );
+
+            var code = reply.Root.GetBin();
+            return (SECS_RESPONSE.ACKC10)code;
+        }
+
+        public async Task<SECS_RESPONSE.ACKC10> SendTerminalBroadcast(string text, CancellationToken ct = default)
+        {
+            var reply = await _tcp.SendAndWaitForReplyAsync(
+                  HsmsMessage.Builder
+                      .Stream(10)
+                      .Func(9)
+                      .ReplyExpected()
+                      .Item(new ListDataItem(
+                          new ADataItem(text)
+                      ))
+                      .Build(),
+                  ct
+               );
+
+            var code = reply.Root.GetBin();
+            return (SECS_RESPONSE.ACKC10)code;
+        }
     }
 }

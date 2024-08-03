@@ -14,7 +14,8 @@ namespace SecsGem.NetCore.Handler.Server
 
             var arg = await Context.Kernel.Emit(new SecsGemTerminalDisplayEvent
             {
-                Text = new List<string> { text }
+                Texts = new List<string> { text },
+                IsBroadcast = true
             });
 
             await Context.ReplyAsync(

@@ -93,5 +93,14 @@ namespace SecsGem.NetCore.Enum
 
             InvalidObject
         }
+
+        public enum ACKC10
+        {
+            Accepted = 0,
+
+            WillNotBeDisplayed,
+
+            NotAvailable
+        }
     }
 }

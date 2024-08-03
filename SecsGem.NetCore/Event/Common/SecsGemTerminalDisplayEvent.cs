@@ -1,22 +1,17 @@
-﻿namespace SecsGem.NetCore.Event.Common
+﻿using SecsGem.NetCore.Enum;
+
+namespace SecsGem.NetCore.Event.Common
 {
-    public enum SecsGemTerminalDisplayResult
-    {
-        Accept = 0,
-
-        Denied,
-
-        NotAvailable
-    }
-
     public class SecsGemTerminalDisplayEvent : SecsGemEvent
     {
         public override SecsGemEventType Event => SecsGemEventType.TerminalDisplay;
 
-        public byte? Id { get; set; }
+        public byte Id { get; set; }
 
-        public IEnumerable<string> Text { get; set; }
+        public bool IsBroadcast { get; set; }
 
-        public SecsGemTerminalDisplayResult Return { get; set; }
+        public IEnumerable<string> Texts { get; set; }
+
+        public SECS_RESPONSE.ACKC10 Return { get; set; }
     }
 }

@@ -10,6 +10,11 @@ namespace SecsGem.NetCore.Hsms
 
         protected override int DataSize { get => Values.Sum(x => x.TotalSize); }
 
+        public ListDataItem(IEnumerable<DataItem> items)
+        {
+            Values = items.ToList();
+        }
+
         public ListDataItem(params DataItem[] items)
         {
             Values = items.ToList();
