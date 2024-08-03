@@ -21,11 +21,11 @@ namespace SecsGem.NetCore.Event.Client
         Task Error(SecsGemErrorEvent evt);
     }
 
-    public class SecsGemClientEventHandlerExecuter
+    public class SecsGemClientEventExecuter
     {
         private readonly ISecsGemClientEventHandler _handler;
 
-        public SecsGemClientEventHandlerExecuter(ISecsGemClientEventHandler handler)
+        public SecsGemClientEventExecuter(ISecsGemClientEventHandler handler)
         {
             _handler = handler;
         }

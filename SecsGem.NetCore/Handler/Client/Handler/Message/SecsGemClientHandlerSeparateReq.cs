@@ -1,6 +1,6 @@
-using SecsGem.NetCore.Feature.Client;
 using SecsGem.NetCore.Handler.Common;
 using SecsGem.NetCore.Hsms;
+using SecsGem.NetCore.State.Client;
 
 namespace SecsGem.NetCore.Handler.Server.Handler.Message
 {

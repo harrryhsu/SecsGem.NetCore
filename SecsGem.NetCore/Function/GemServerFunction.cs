@@ -1,7 +1,7 @@
 ﻿using SecsGem.NetCore.Event.Common;
 using SecsGem.NetCore.Event.Server;
-using SecsGem.NetCore.Feature.Server;
 using SecsGem.NetCore.Hsms;
+using SecsGem.NetCore.State.Server;
 using TrafficCom.V3.Connection;
 
 namespace SecsGem.NetCore.Function
@@ -140,7 +140,7 @@ namespace SecsGem.NetCore.Function
                     .Func(9)
                     .ReplyExpected(true)
                     .Item(new ListDataItem(
-                        new ADataItem(timestamp.ToString("YYYY-MM-ddTHH:mm:ss")),
+                        new ADataItem(timestamp.ToString("O")),
                         new ADataItem(id),
                         new ADataItem(type),
                         new ADataItem(message),
@@ -171,24 +171,20 @@ namespace SecsGem.NetCore.Function
             catch { }
         }
 
-        public async Task Deselect(CancellationToken ct = default)
-        {
-            await _tcp.SendAsync(
-                HsmsMessage.Builder
-                    .Type(HsmsMessageType.DeselectReq)
-                    .Build(),
-                ct
-            );
-        }
-
-        public async Task<bool> GoOnlineRemote(CancellationToken ct = default)
+        public async Task<bool> GoOnlineRemote()
         {
             return await _kernel.State.TriggerAsync(GemServerStateTrigger.GoOnlineRemote, false);
         }
 
-        public async Task<bool> GoOnlineLocal(CancellationToken ct = default)
+        public async Task<bool> GoOnlineLocal()
         {
             return await _kernel.State.TriggerAsync(GemServerStateTrigger.GoOnlineLocal, false);
+        }
+
+        public async Task<HsmsMessage> Send(HsmsMessage message, CancellationToken ct = default)
+        {
+            var msg = await _tcp.SendAndWaitForReplyAsync(message, ct);
+            return msg;
         }
     }
 }

@@ -6,6 +6,7 @@ using SecsGem.NetCore.Function;
 using SecsGem.NetCore.Handler.Client;
 using SecsGem.NetCore.Hsms;
 using SecsGem.NetCore.Mutex;
+using SecsGem.NetCore.State.Client;
 
 namespace SecsGem.NetCore
 {

@@ -8,7 +8,7 @@ namespace SecsGem.NetCore.Extension
         {
             var option = new SecsGemOption();
             configure?.Invoke(option);
-            collection.AddSingleton<SecsGemServer, SecsGemServer>(p => new(option));
+            collection.AddSingleton<SecsGemServer>(p => new(option));
             collection.AddHostedService(p => p.GetRequiredService<SecsGemServer>());
         }
 
@@ -21,7 +21,7 @@ namespace SecsGem.NetCore.Extension
             {
                 using var scope = app.Services.CreateScope();
                 var handler = scope.ServiceProvider.GetRequiredService<THandler>() as ISecsGemServerEventHandler;
-                var executer = new SecsGemServerEventHandlerExecuter(handler);
+                var executer = new SecsGemServerEventExecuter(handler);
                 await executer.Execute(e);
             };
         }

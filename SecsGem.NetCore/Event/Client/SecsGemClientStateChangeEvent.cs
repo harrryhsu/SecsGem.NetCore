@@ -1,5 +1,5 @@
 ﻿using SecsGem.NetCore.Event.Common;
-using SecsGem.NetCore.Feature.Client;
+using SecsGem.NetCore.State.Client;
 
 namespace SecsGem.NetCore.Event.Client
 {

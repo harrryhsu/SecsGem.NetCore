@@ -1,5 +1,5 @@
-using SecsGem.NetCore.Feature.Client;
-using SecsGem.NetCore.Feature.Server;
+using SecsGem.NetCore.State.Client;
+using SecsGem.NetCore.State.Server;
 using SecsGem.NetCore.Test.Helper;
 using System.Net;
 

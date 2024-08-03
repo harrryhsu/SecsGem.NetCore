@@ -1,5 +1,5 @@
-using SecsGem.NetCore.Feature.Client;
-using SecsGem.NetCore.Feature.Server;
+using SecsGem.NetCore.State.Client;
+using SecsGem.NetCore.State.Server;
 using SecsGem.NetCore.Test.Helper;
 using System.Diagnostics;
 using System.Net;
@@ -56,7 +56,6 @@ namespace SecsGem.NetCore.Test
         public virtual async Task TearDown()
         {
             await _server.DisposeAsync();
-            await Task.Delay(50);
             await _client.DisposeAsync();
         }
 

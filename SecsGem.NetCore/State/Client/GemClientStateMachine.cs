@@ -3,38 +3,8 @@ using SecsGem.NetCore.Event.Common;
 using SecsGem.NetCore.Helper;
 using Stateless;
 
-namespace SecsGem.NetCore.Feature.Client
+namespace SecsGem.NetCore.State.Client
 {
-    public enum GemClientStateModel
-    {
-        Disconnected = 0,
-
-        Connected,
-
-        Selected,
-
-        ControlOffLine,
-
-        ControlOnline,
-    }
-
-    public enum GemClientStateTrigger
-    {
-        Connect,
-
-        Disconnect,
-
-        Select,
-
-        Deselect,
-
-        EstablishCommunication,
-
-        GoOffline,
-
-        GoOnline,
-    }
-
     public class GemClientStateMachine
     {
         private readonly StateMachine<GemClientStateModel, GemClientStateTrigger> _state;

@@ -33,11 +33,11 @@ namespace SecsGem.NetCore.Event.Server
         Task DataChange(SecsGemDataChangeEvent evt);
     }
 
-    public class SecsGemServerEventHandlerExecuter
+    public class SecsGemServerEventExecuter
     {
         private readonly ISecsGemServerEventHandler _handler;
 
-        public SecsGemServerEventHandlerExecuter(ISecsGemServerEventHandler handler)
+        public SecsGemServerEventExecuter(ISecsGemServerEventHandler handler)
         {
             _handler = handler;
         }

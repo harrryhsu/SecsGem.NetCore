@@ -1,9 +1,9 @@
 ﻿using SecsGem.NetCore.Connection;
 using SecsGem.NetCore.Enum;
 using SecsGem.NetCore.Event.Common;
-using SecsGem.NetCore.Feature.Client;
 using SecsGem.NetCore.Feature.Server;
 using SecsGem.NetCore.Hsms;
+using SecsGem.NetCore.State.Client;
 
 namespace SecsGem.NetCore.Function
 {
@@ -43,15 +43,16 @@ namespace SecsGem.NetCore.Function
             }
         }
 
-        public async Task Deselect(CancellationToken ct = default)
+        public async Task<bool> Deselect(CancellationToken ct = default)
         {
-            await _tcp.SendAsync(
+            var res = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
                     .Type(HsmsMessageType.DeselectReq)
                     .Build(),
                 ct
             );
-            await _kernel.State.TriggerAsync(GemClientStateTrigger.Deselect, true);
+
+            return res.Header.SType == HsmsMessageType.DeselectRsp;
         }
 
         public async Task Separate(CancellationToken ct = default)
@@ -712,6 +713,12 @@ namespace SecsGem.NetCore.Function
 
             var ack = (SECS_RESPONSE.ACKC7)msg.Root.GetBin();
             return ack;
+        }
+
+        public async Task<HsmsMessage> Send(HsmsMessage message, CancellationToken ct = default)
+        {
+            var msg = await _tcp.SendAndWaitForReplyAsync(message, ct);
+            return msg;
         }
     }
 }

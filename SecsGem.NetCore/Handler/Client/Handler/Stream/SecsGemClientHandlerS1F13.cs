@@ -1,5 +1,6 @@
 using SecsGem.NetCore.Handler.Common;
 using SecsGem.NetCore.Hsms;
+using SecsGem.NetCore.State.Client;
 
 namespace SecsGem.NetCore.Handler.Server
 {
@@ -9,7 +10,7 @@ namespace SecsGem.NetCore.Handler.Server
     {
         public override async Task Execute()
         {
-            var success = await Context.Kernel.State.TriggerAsync(Feature.Client.GemClientStateTrigger.EstablishCommunication, false);
+            var success = await Context.Kernel.State.TriggerAsync(GemClientStateTrigger.EstablishCommunication, false);
             var res = (byte)(success ? 0 : 1);
 
             await Context.ReplyAsync(

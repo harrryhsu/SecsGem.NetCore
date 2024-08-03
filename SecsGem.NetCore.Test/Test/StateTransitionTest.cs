@@ -1,5 +1,5 @@
 using SecsGem.NetCore.Event.Server;
-using SecsGem.NetCore.Feature.Server;
+using SecsGem.NetCore.State.Server;
 
 namespace SecsGem.NetCore.Test.Test
 {

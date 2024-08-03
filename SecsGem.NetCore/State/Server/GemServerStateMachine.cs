@@ -3,44 +3,8 @@ using SecsGem.NetCore.Event.Server;
 using SecsGem.NetCore.Helper;
 using Stateless;
 
-namespace SecsGem.NetCore.Feature.Server
+namespace SecsGem.NetCore.State.Server
 {
-    public enum GemServerStateModel
-    {
-        Disconnected = 0,
-
-        Connected,
-
-        Selected,
-
-        ControlOffLine,
-
-        ControlOnlineLocal,
-
-        ControlOnlineRemote,
-    }
-
-    public enum GemServerStateTrigger
-    {
-        Connect,
-
-        Disconnect,
-
-        Select,
-
-        Deselect,
-
-        EstablishCommunication,
-
-        GoOnline,
-
-        GoOffline,
-
-        GoOnlineLocal,
-
-        GoOnlineRemote,
-    }
-
     public class GemServerStateMachine
     {
         private readonly StateMachine<GemServerStateModel, GemServerStateTrigger> _state;
