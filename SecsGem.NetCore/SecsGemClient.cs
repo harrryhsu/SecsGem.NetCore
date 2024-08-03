@@ -1,4 +1,5 @@
 ﻿using SecsGem.NetCore.Connection;
+using SecsGem.NetCore.Error;
 using SecsGem.NetCore.Event.Client;
 using SecsGem.NetCore.Event.Common;
 using SecsGem.NetCore.Feature.Client;
@@ -39,7 +40,7 @@ namespace SecsGem.NetCore
             _option = option;
             _tcp = new(_option);
             _tcp.OnMessageReceived += OnTcpMessageReceived;
-            _tcp.OnError += OnTcpError;
+            _tcp.OnSecsError += OnSecsError;
             Function = new(this);
             State = new(this);
         }
@@ -63,11 +64,11 @@ namespace SecsGem.NetCore
             });
         }
 
-        private async Task OnTcpError(SecsGemTcpClient sender, SecsGemException ex)
+        private async Task OnSecsError(SecsGemTcpClient sender, SecsGemException ex)
         {
             await Emit(new SecsGemErrorEvent
             {
-                Message = "Tcp Error",
+                Message = "Secs Error",
                 Exception = ex,
             });
         }

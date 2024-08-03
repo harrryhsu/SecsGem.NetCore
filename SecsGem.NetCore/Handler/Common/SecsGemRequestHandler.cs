@@ -1,4 +1,5 @@
 ﻿using SecsGem.NetCore.Connection;
+using SecsGem.NetCore.Error;
 using SecsGem.NetCore.Hsms;
 using System.Reflection;
 

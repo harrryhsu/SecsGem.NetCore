@@ -1,4 +1,5 @@
 ﻿using SecsGem.NetCore.Buffer;
+using SecsGem.NetCore.Error;
 using SecsGem.NetCore.Hsms;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
@@ -7,7 +8,7 @@ namespace SecsGem.NetCore.Connection
 {
     public delegate Task OnMessageReceivedEventHandler(SecsGemTcpClient sender, TcpConnection con, HsmsMessage message);
 
-    public delegate Task OnErrorEventHandler(SecsGemTcpClient sender, SecsGemException ex);
+    public delegate Task OnSecsErrorEventHandler(SecsGemTcpClient sender, SecsGemException ex);
 
     public class SecsGemTcpClient : IDisposable
     {
@@ -21,7 +22,7 @@ namespace SecsGem.NetCore.Connection
 
         public event OnMessageReceivedEventHandler OnMessageReceived;
 
-        public event OnErrorEventHandler OnError;
+        public event OnSecsErrorEventHandler OnSecsError;
 
         protected readonly SecsGemOption _option;
 
@@ -33,6 +34,12 @@ namespace SecsGem.NetCore.Connection
         public async Task<TcpConnection> ConnectAsync()
         {
             return await ConnectAsync(CancellationToken.None);
+        }
+
+        protected async Task EmitException(SecsGemException exception)
+        {
+            await OnSecsError?.Invoke(this, exception);
+            throw exception;
         }
 
         public async Task<TcpConnection> ConnectAsync(CancellationToken cts = default)
@@ -117,7 +124,10 @@ namespace SecsGem.NetCore.Connection
         public virtual async Task<HsmsMessage> SendAndWaitForReplyAsync(HsmsMessage msg, CancellationToken token = default)
         {
             var client = _clients.FirstOrDefault();
-            if (client == null) throw new SecsGemConnectionException("Client not connected") { Code = "not_connected" };
+            if (client == null)
+            {
+                await EmitException(new SecsGemConnectionException("Client not connected") { Code = "not_connected" });
+            }
             return await SendAndWaitForReplyAsync(client, msg, token);
         }
 
@@ -136,7 +146,8 @@ namespace SecsGem.NetCore.Connection
                 if (msg.Header.SType == HsmsMessageType.DataMessage && msg.Header.F == 0)
                 {
                     _option.DebugLog($"Message is aborted {reply.Header.SType} {reply}");
-                    throw new SecsGemTransactionException($"Message is aborted {reply.Header.SType} {reply}") { Code = "abort" };
+                    await EmitException(new SecsGemTransactionException($"Message is aborted {reply.Header.SType} {reply}") { Code = "abort" });
+                    return null;
                 }
                 else if (msg.Header.SType == HsmsMessageType.DataMessage && (
                     reply.Header.SType != HsmsMessageType.DataMessage ||
@@ -145,7 +156,8 @@ namespace SecsGem.NetCore.Connection
                 ))
                 {
                     _option.DebugLog($"WAIT {msg.Header.SType} {msg}, Unexpected reply {reply.Header.SType} {reply}");
-                    throw new SecsGemTransactionException($"Unexpected Reply: {reply.Header.SType} {reply}") { Code = "unexpected_reply" };
+                    await EmitException(new SecsGemTransactionException($"Unexpected Reply: {reply.Header.SType} {reply}") { Code = "unexpected_reply" });
+                    return null;
                 }
                 else
                 {
@@ -155,12 +167,14 @@ namespace SecsGem.NetCore.Connection
             catch (TimeoutException)
             {
                 _option.DebugLog($"WAIT {msg.Header.SType} {msg}, Timeout");
-                throw new SecsGemTransactionException("Wait For Reply Timeout") { Code = "reply_timeout" };
+                await EmitException(new SecsGemTransactionException("Wait For Reply Timeout") { Code = "reply_timeout" });
+                return null;
             }
             catch (ObjectDisposedException)
             {
                 _option.DebugLog($"WAIT {msg.Header.SType} {msg}, Connection disposed");
-                throw new SecsGemConnectionException("Connection Dispoed") { Code = "disposed" };
+                await EmitException(new SecsGemConnectionException("Connection Dispoed") { Code = "disposed" });
+                return null;
             }
             finally
             {
@@ -171,13 +185,16 @@ namespace SecsGem.NetCore.Connection
         public virtual async Task SendAsync(HsmsMessage msg, CancellationToken token = default)
         {
             var client = _clients.FirstOrDefault();
-            if (client == null) throw new SecsGemConnectionException("Client not connected") { Code = "not_connected" };
+            if (client == null)
+            {
+                await EmitException(new SecsGemConnectionException("Client not connected") { Code = "not_connected" });
+            }
             await SendAsync(client, msg, token);
         }
 
         public virtual async Task SendAsync(TcpConnection con, HsmsMessage msg, CancellationToken token = default)
         {
-            if (!Online) throw new SecsGemConnectionException("Server/Client is not online") { Code = "not_connected" };
+            if (!Online) await EmitException(new SecsGemConnectionException("Server/Client is not online") { Code = "not_connected" });
             await con.Lock.WaitAsync(token);
 
             _option.DebugLog($"SEND {msg.Header.SType} {msg}");
@@ -192,12 +209,12 @@ namespace SecsGem.NetCore.Connection
             catch (ObjectDisposedException)
             {
                 _option.DebugLog($"SEND {msg.Header.SType} {msg}, Connection disposed");
-                throw new SecsGemConnectionException("Connection Disposed") { Code = "disposed" };
+                await EmitException(new SecsGemConnectionException("Connection Disposed") { Code = "disposed" });
             }
             catch (Exception ex)
             {
                 _option.DebugLog($"SEND {msg.Header.SType} {msg}, Error {ex}");
-                throw new SecsGemConnectionException("Message Send Error", ex);
+                await EmitException(new SecsGemConnectionException("Message Send Error", ex));
             }
             finally
             {

@@ -1,4 +1,6 @@
-﻿namespace SecsGem.NetCore.Event.Common
+﻿using SecsGem.NetCore.Error;
+
+namespace SecsGem.NetCore.Event.Common
 {
     public class SecsGemErrorEvent : SecsGemEvent
     {

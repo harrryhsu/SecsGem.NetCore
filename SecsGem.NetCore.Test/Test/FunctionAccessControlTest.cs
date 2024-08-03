@@ -1,3 +1,4 @@
+using SecsGem.NetCore.Error;
 using SecsGem.NetCore.Test.Helper;
 
 namespace SecsGem.NetCore.Test.Test

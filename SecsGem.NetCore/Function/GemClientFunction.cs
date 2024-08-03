@@ -1,5 +1,6 @@
 ﻿using SecsGem.NetCore.Connection;
 using SecsGem.NetCore.Enum;
+using SecsGem.NetCore.Error;
 using SecsGem.NetCore.Event.Common;
 using SecsGem.NetCore.Feature.Server;
 using SecsGem.NetCore.Hsms;
