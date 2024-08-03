@@ -6,18 +6,43 @@ namespace SecsGem.NetCore.Event.Client
 
     public interface ISecsGemClientEventHandler
     {
+        /// <summary>
+        /// Notification an alarm trigger, Triggered by S5F1
+        /// </summary>
         Task Alarm(SecsGemAlarmEvent evt);
 
+        /// <summary>
+        /// Notification a collection event, Triggered by S6F11
+        /// </summary>
         Task CollectionEvent(SecsGemCollectionEventEvent evt);
 
+        /// <summary>
+        /// Notification for error on the equipment
+        /// </summary>
         Task NotifyException(SecsGemNotifyExceptionEvent evt);
 
+        /// <summary>
+        /// Notification for any unhandled message
+        /// </summary>
         Task OrphanMessage(SecsGemClientOrphanMessageEvent evt);
 
+        /// <summary>
+        /// Request for displaying message on terminal
+        /// Triggered by S10F1
+        /// </summary>
         Task TerminalDisplay(SecsGemTerminalDisplayEvent evt);
 
+        /// <summary>
+        /// Triggered whenever there is a change in the kernel state,
+        /// set evt.Accept to false will cancel the transition,
+        /// if evt.Force is true, the evt.Accept has no effect, the message become notification only
+        /// </summary>
+        /// <param name="evt"></param>
         Task StateChange(SecsGemClientStateChangeEvent evt);
 
+        /// <summary>
+        /// Error event for any SecsGem or HSMS exception
+        /// </summary>
         Task Error(SecsGemErrorEvent evt);
     }
 

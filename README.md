@@ -15,16 +15,15 @@ Only the below feature is supported and not all function of the below feature is
     StatusVariables
     ProcessPrograms
 
-
-
-
-
 ## SecsGemServer Usage
 
 The library was designed to be used with Asp.NetCore Web Application.
 
     var builder = WebApplication.CreateBuilder(args);
-    builder.Services.AddSecsGem();
+    builder.Services.AddSecsGem(option =>
+    {
+        option.Target = new IPEndPoint(IPAddress.Any, 5000);
+    });
     var app = builder.Build();
     app.UseSecsGem<CustomSecsGemHandler>();
     app.Run();
@@ -37,8 +36,7 @@ However it is also possible to access it by directly creating an instance, you w
     };
     await secsgem.StartAsync();
 
-
-The UseSecsGem expect to find a service that implemented ISecsGemServerEventHandler from service provider, and create a new scope for each event. 
+The UseSecsGem expect to find a service that implemented ISecsGemServerEventHandler from service provider, and create a new scope for each event.
 
 The event handler will define all interation the equipment needed to operate SecsGem protocol.
 
@@ -51,11 +49,14 @@ The event handler will define all interation the equipment needed to operate Sec
             _kernel = kernel;
         }
 
-        // On SecsGem server start for initializing features and equipment data
+        /// <summary>
+        /// On SecsGem server start for initializing features and equipment data
+        /// </summary>
+        /// <param name="evt"></param>
         public async Task Init(SecsGemInitEvent evt)
         {
-            _kernel.Device.Model = "Test Model";
-            _kernel.Device.Revision = "Test Revision";
+            _kernel.Feature.Device.Model = "Test Model";
+            _kernel.Feature.Device.Revision = "Test Revision";
             _kernel.Feature.StatusVariables.Add(new StatusVariable { Id = 1, Name = "Test SV 1", Unit = "Test Unit 1" });
             _kernel.Feature.StatusVariables.Add(new StatusVariable { Id = 2, Name = "Test SV 2", Unit = "Test Unit 2" });
             _kernel.Feature.EquipmentConstants.Add(new EquipmentConstant { Id = 1, Name = "Test EC 1", Unit = "Test Unit 1", Min = 0, Max = 1000, Default = 0 });
@@ -63,93 +64,168 @@ The event handler will define all interation the equipment needed to operate Sec
             _kernel.Feature.Commands.Add(new Command { Name = "START", Description = "Start Production", });
             _kernel.Feature.Alarms.Add(new Alarm { Id = 1, Description = "Test Alarm", Enabled = false });
             _kernel.Feature.CollectionEvents.Add(new CollectionEvent { Id = 1, Name = "Test CE 1", Enabled = true });
-
-            return Task.CompletedTask;
+            _kernel.Feature.Terminals.Add(new Terminal { Id = 1, Name = "Main Display" });
         }
 
-        // On SecsGem server stop
+        /// <summary>
+        /// On SecsGem server stop
+        /// </summary>
+        /// <param name="evt"></param>
         public async Task Stop(SecsGemStopEvent evt)
         {
         }
 
-        // Command execute
-        // Triggered by S2F41
+        /// <summary>
+        /// Request to populate Status Variables in evt.Params
+        /// Triggered by S1F3
+        /// </summary>
+        /// <param name="evt"></param>
+        public async Task GetStatusVariable(SecsGemGetStatusVariableEvent evt)
+        {
+        }
+
+        /// <summary>
+        /// Request to populate Data Variables in evt.Params
+        /// Triggered by S6F15 or equipment initiated a SendCollectionEvent
+        /// </summary>
+        /// <param name="evt"></param>
+        public async Task GetDataVariable(SecsGemGetDataVariableEvent evt)
+        {
+        }
+
+        /// <summary>
+        /// Request to populate Equipment Constants in evt.Params, Triggered by S2F13
+        /// </summary>
+        /// <param name="evt"></param>
+        public async Task GetEquipmentConstant(SecsGemGetEquipmentConstantEvent evt)
+        {
+        }
+
+        /// <summary>
+        /// Request to update Equipment Constants, Triggered by S2F15
+        /// </summary>
+        /// <param name="evt"></param>
+        public async Task SetEquipmentConstant(SecsGemSetEquipmentConstantEvent evt)
+        {
+        }
+
+        /// <summary>
+        /// Command execute, Triggered by S2F41
+        /// </summary>
+        /// <param name="evt"></param>
         public async Task CommandExecute(SecsGemCommandExecuteEvent evt)
         {
             Console.WriteLine($"Command Execute: {evt.Cmd.Name}");
-            evt.Return = CommandExecuteResult.Okay;
+            evt.Return = SECS_RESPONSE.HCACK.Ok;
         }
 
-        // Communication state change alert that nofitied about new connection or connection dropping
-        public async Task CommunicationStateChange(SecsGemCommunicationStateChangeEvent evt)
+        /// <summary>
+        /// Request for displaying message on terminal
+        /// Triggered by S10F3/S10F5/S10F9
+        /// </summary>
+        /// <param name="evt"></param>
+        public async Task TerminalDisplay(SecsGemTerminalDisplayEvent evt)
         {
-            Console.WriteLine($"Communication State Change: {evt.NewState}");
-            evt.Return = true;
+            evt.Return = SECS_RESPONSE.ACKC10.Accepted;
         }
 
-        // Error event for any SecsGem or HSMS exception
+        /// <summary>
+        /// Triggered whenever there is a change in the kernel state,
+        /// set evt.Accept to false will cancel the transition,
+        /// if evt.Force is true, the evt.Accept has no effect, the message become notification only
+        /// </summary>
+        /// <param name="evt"></param>
+        public async Task StateChange(SecsGemServerStateChangeEvent evt)
+        {
+        }
+
+        /// <summary>
+        /// Notification for any unhandled message
+        /// </summary>
+        /// <param name="evt"></param>
+        public async Task OrphanMessage(SecsGemServerOrphanMessageEvent evt)
+        {
+        }
+
+        /// <summary>
+        /// Error event for any SecsGem or HSMS exception
+        /// </summary>
+        /// <param name="evt"></param>
         public async Task Error(SecsGemErrorEvent evt)
         {
             Console.WriteLine($"SecsGem Error: {evt.Message} {evt.Exception}");
         }
 
-        // Request to populate Data Variables in evt.Params
-        // Triggered by S6F15 or equipment initiated a SendCollectionEvent
-        public async Task GetDataVariable(SecsGemGetDataVariableEvent evt)
+        /// <summary>
+        /// Set time request, Triggered by S2F31
+        /// </summary>
+        /// <param name="evt"></param>
+        public async Task SetTime(SecsGemSetTimeEvent evt)
         {
         }
 
-        // Request to populate Equipment Constants in evt.Params
-        // Triggered by S2F13
-        public async Task GetEquipmentConstant(SecsGemGetEquipmentConstantEvent evt)
+        /// <summary>
+        /// Triggered whenever there is a data change,
+        /// this event is used to notify for saving the data
+        /// </summary>
+        /// <param name="evt"></param>
+        public async Task DataChange(SecsGemDataChangeEvent evt)
         {
-        }
-
-        // Request to populate Status Variables in evt.Params
-        // Triggered by S1F3
-        public async Task GetStatusVariable(SecsGemGetStatusVariableEvent evt)
-        {
-        }
-
-        // Notification for any unhandled host initiated transaction
-        public async Task OrphanMessage(SecsGemOrphanMessageEvent evt)
-        {
-        }
-
-        // Request to update Equipment Constants
-        // Triggered by S2F15
-        public async Task SetEquipmentConstant(SecsGemSetEquipmentConstantEvent evt)
-        {
-        }
-
-        // Request for displaying message on terminal
-        // Triggered by S10F3/S10F5/S10F9
-        public async Task TerminalDisplay(SecsGemTerminalDisplayEvent evt)
-        {
-            evt.Return = true;
         }
     }
 
+SecsGem.Function provides active methods that you can use to send event to host, the method will throw if there is a tcp error or invalid state.
 
-SecsGem interface only provides four active methods that you can use to send event to host, you can find them in SecsGemServer.Function
+    /// <summary>
+    /// S1F13 Establish communication to transition into control offline state
+    /// </summary>
+    /// <returns>If state transition succeeded</returns>
+    public async Task<bool> CommunicationEstablish(CancellationToken ct = default);
 
-SecsGemServer will only send the data if server is online.
-
-    // S5F1
+    /// <summary>
+    /// S5F1 Trigger alarm, message is only sent if kernel state is readable and alarm is enabled
+    /// </summary>
     Task<bool> TriggerAlarm(uint id, CancellationToken ct = default);
 
-    // S10F1
-    Task<bool> SendHostDisplay(byte id, string text, CancellationToken ct = default);
-    
-    // S6F11
-    // GetDataVariable event will be triggered to fill data variables
-    Task<bool> SendCollectionEvent(uint id, CancellationToken ct = default);
+    /// <summary>
+    /// S10F1 Send single line terminal display
+    /// </summary>
+    /// <returns>Terminal display result</returns>
+    public async Task<SECS_RESPONSE.ACKC10> SendTerminal(byte id, string text, CancellationToken ct = default);
 
-    // S5F9
+    /// <summary>
+    /// S6F11 Send collection event, SecsGemGetDataVariableEvent is triggered to populate the collection event data variables
+    /// </summary>
+    public async Task SendCollectionEvent(uint id, CancellationToken ct = default);
+
+    /// <summary>
+    /// S5F9 Notify host of an equipment exception
+    /// </summary>
     Task<bool> NotifyException(string id, Exception ex, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default);
-
     Task<bool> NotifyException(string id, string type, string message, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default);
 
+    /// <summary>
+    /// Disconnect immediately
+    /// </summary>
+    public async Task Separate(CancellationToken ct = default);
+
+    /// <summary>
+    /// Transition the local state machine to online remote
+    /// </summary>
+    /// <returns>If state transition succeeded</returns>
+    public async Task<bool> GoOnlineRemote();
+
+    /// <summary>
+    /// Transition the local state machine to online local
+    /// </summary>
+    /// <returns>If state transition succeeded</returns>
+    public async Task<bool> GoOnlineLocal();
+
+    /// <summary>
+    /// Send user provided HSMS message to host
+    /// </summary>
+    /// <returns>HSMS message response</returns>
+    public async Task<HsmsMessage> Send(HsmsMessage message, CancellationToken ct = default);
 
 ## SecsGemClient Usage
 
@@ -185,4 +261,3 @@ Client interface is developed for testing purpose, but the actual usage is also 
     };
 
     var ecs = await client.Function.EquipmentConstantValueGet();
-

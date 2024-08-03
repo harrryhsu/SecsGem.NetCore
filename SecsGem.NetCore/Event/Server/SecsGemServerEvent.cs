@@ -6,30 +6,84 @@ namespace SecsGem.NetCore.Event.Server
 
     public interface ISecsGemServerEventHandler
     {
+        /// <summary>
+        /// On SecsGem server start for initializing features and equipment data
+        /// </summary>
+        /// <param name="evt"></param>
         Task Init(SecsGemInitEvent evt);
 
+        /// <summary>
+        /// On SecsGem server stop
+        /// </summary>
+        /// <param name="evt"></param>
         Task Stop(SecsGemStopEvent evt);
 
+        /// <summary>
+        /// Request to populate Status Variables in evt.Params
+        /// Triggered by S1F3
+        /// </summary>
+        /// <param name="evt"></param>
         Task GetStatusVariable(SecsGemGetStatusVariableEvent evt);
 
+        /// <summary>
+        /// Request to populate Data Variables in evt.Params
+        /// Triggered by S6F15 or equipment initiated a SendCollectionEvent
+        /// </summary>
+        /// <param name="evt"></param>
         Task GetDataVariable(SecsGemGetDataVariableEvent evt);
 
+        /// <summary>
+        /// Request to populate Equipment Constants in evt.Params, Triggered by S2F13
+        /// </summary>
+        /// <param name="evt"></param>
         Task GetEquipmentConstant(SecsGemGetEquipmentConstantEvent evt);
 
         Task SetEquipmentConstant(SecsGemSetEquipmentConstantEvent evt);
 
+        /// <summary>
+        /// Command execute, Triggered by S2F41
+        /// </summary>
+        /// <param name="evt"></param>
         Task CommandExecute(SecsGemCommandExecuteEvent evt);
 
+        /// <summary>
+        /// Request for displaying message on terminal
+        /// Triggered by S10F3/S10F5/S10F9
+        /// </summary>
+        /// <param name="evt"></param>
         Task TerminalDisplay(SecsGemTerminalDisplayEvent evt);
 
+        /// <summary>
+        /// Triggered whenever there is a change in the kernel state,
+        /// set evt.Accept to false will cancel the transition,
+        /// if evt.Force is true, the evt.Accept has no effect, the message become notification only
+        /// </summary>
+        /// <param name="evt"></param>
         Task StateChange(SecsGemServerStateChangeEvent evt);
 
+        /// <summary>
+        /// Notification for any unhandled message
+        /// </summary>
+        /// <param name="evt"></param>
         Task OrphanMessage(SecsGemServerOrphanMessageEvent evt);
 
+        /// <summary>
+        /// Error event for any SecsGem or HSMS exception
+        /// </summary>
+        /// <param name="evt"></param>
         Task Error(SecsGemErrorEvent evt);
 
+        /// <summary>
+        /// Set time request, Triggered by S2F31
+        /// </summary>
+        /// <param name="evt"></param>
         Task SetTime(SecsGemSetTimeEvent evt);
 
+        /// <summary>
+        /// Triggered whenever there is a data change,
+        /// this event is used to notify for saving the data
+        /// </summary>
+        /// <param name="evt"></param>
         Task DataChange(SecsGemDataChangeEvent evt);
     }
 
