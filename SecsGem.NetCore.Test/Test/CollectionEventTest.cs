@@ -54,7 +54,7 @@ namespace SecsGem.NetCore.Test.Test
         [Test]
         public async Task Get_Collection_Event_Detail()
         {
-            var ces = await _client.Function.CollectionEventDefinitionGet();
+            var ces = await _client.Function.S1F23CollectionEventNamelistRequest();
             Assert.Multiple(() =>
             {
                 Assert.That(ces.Count(), Is.EqualTo(1));
@@ -81,7 +81,7 @@ namespace SecsGem.NetCore.Test.Test
         [Test]
         public async Task Get_Collection_Event_Detail_Invalid_Id()
         {
-            var ces = await _client.Function.CollectionEventDefinitionGet(new uint[] { 2 });
+            var ces = await _client.Function.S1F23CollectionEventNamelistRequest(new uint[] { 2 });
             Assert.Multiple(() =>
             {
                 Assert.That(ces.Count(), Is.EqualTo(1));
@@ -96,7 +96,7 @@ namespace SecsGem.NetCore.Test.Test
         [Test]
         public async Task Get_Collection_Event_Link()
         {
-            var ceLinks = await _client.Function.CollectionEventLinkGet();
+            var ceLinks = await _client.Function.S2F55RequestEventReportLinks();
             Assert.That(ceLinks.Count(), Is.EqualTo(1));
 
             var fce = ceLinks.First();
@@ -117,7 +117,7 @@ namespace SecsGem.NetCore.Test.Test
         [Test]
         public async Task Get_Collection_Event_Link_Invalid_Id()
         {
-            var ceLinks = await _client.Function.CollectionEventLinkGet(new uint[] { 2 });
+            var ceLinks = await _client.Function.S2F55RequestEventReportLinks(new uint[] { 2 });
 
             Assert.Multiple(() =>
             {
@@ -131,7 +131,7 @@ namespace SecsGem.NetCore.Test.Test
         [Test]
         public async Task Get_Collection_Report_Detail()
         {
-            var crs = await _client.Function.CollectionReportDefinitionGet();
+            var crs = await _client.Function.S2F53RequestReportDefinitions();
             Assert.That(crs.Count(), Is.EqualTo(2));
 
             var scrs = CE.CollectionReports.ToList();
@@ -153,7 +153,7 @@ namespace SecsGem.NetCore.Test.Test
         [Test]
         public async Task Get_Collection_Report_Detail_Invalid_Id()
         {
-            var crs = await _client.Function.CollectionReportDefinitionGet(new uint[] { 5 });
+            var crs = await _client.Function.S2F53RequestReportDefinitions(new uint[] { 5 });
 
             Assert.Multiple(() =>
             {
@@ -167,19 +167,19 @@ namespace SecsGem.NetCore.Test.Test
         [Test]
         public async Task Get_Enabled_Collection_Event()
         {
-            var ces = await _client.Function.CollectionEventEnabledIdGet();
+            var ces = await _client.Function.S2F57RequestEnabledEvents();
             Assert.That(ces.Count, Is.EqualTo(1));
             Assert.That(ces.First(), Is.EqualTo(1));
 
             _server.Feature.CollectionEvents.First().Enabled = false;
-            ces = await _client.Function.CollectionEventEnabledIdGet();
+            ces = await _client.Function.S2F57RequestEnabledEvents();
             Assert.That(ces.Count, Is.EqualTo(0));
         }
 
         [Test]
         public async Task Collection_Event_Report_Define()
         {
-            var ack = await _client.Function.CollectionReportDefine(1, new List<CollectionReport>() {
+            var ack = await _client.Function.S2F33DefineReport(1, new List<CollectionReport>() {
                 new() {
                     Id = 2,
                     DataVariables = new()
@@ -193,7 +193,7 @@ namespace SecsGem.NetCore.Test.Test
             });
             Assert.That(ack, Is.EqualTo(SECS_RESPONSE.DRACK.AlreadyDefined));
 
-            ack = await _client.Function.CollectionReportDefine(1, new List<CollectionReport>() {
+            ack = await _client.Function.S2F33DefineReport(1, new List<CollectionReport>() {
                 new() {
                     Id = 1,
                     DataVariables = new()
@@ -207,7 +207,7 @@ namespace SecsGem.NetCore.Test.Test
             });
             Assert.That(ack, Is.EqualTo(SECS_RESPONSE.DRACK.InvalidVid));
 
-            ack = await _client.Function.CollectionReportDefine(1, new List<CollectionReport>() {
+            ack = await _client.Function.S2F33DefineReport(1, new List<CollectionReport>() {
                 new() {
                     Id = 1,
                     DataVariables = new()
@@ -217,7 +217,7 @@ namespace SecsGem.NetCore.Test.Test
             });
             Assert.That(ack, Is.EqualTo(SECS_RESPONSE.DRACK.InvalidFormat));
 
-            ack = await _client.Function.CollectionReportDefine(1, new List<CollectionReport>() {
+            ack = await _client.Function.S2F33DefineReport(1, new List<CollectionReport>() {
                 new() {
                     Id = 1,
                     DataVariables = new()
@@ -241,7 +241,7 @@ namespace SecsGem.NetCore.Test.Test
         [Test]
         public async Task Collection_Event_Report_Link()
         {
-            await _client.Function.CollectionReportDefine(1, new List<CollectionReport>() {
+            await _client.Function.S2F33DefineReport(1, new List<CollectionReport>() {
                 new() {
                     Id = 1,
                     DataVariables = new()
@@ -254,7 +254,7 @@ namespace SecsGem.NetCore.Test.Test
                 }
             });
 
-            var ack = await _client.Function.CollectionReportLink(1, new List<CollectionEvent> {
+            var ack = await _client.Function.S2F35LinkEventReport(1, new List<CollectionEvent> {
                 new() {
                     Id = 2,
                     CollectionReports = new List<CollectionReport>
@@ -267,7 +267,7 @@ namespace SecsGem.NetCore.Test.Test
             });
             Assert.That(ack, Is.EqualTo(SECS_RESPONSE.LRACK.OneOrMoreCeidInvalid));
 
-            ack = await _client.Function.CollectionReportLink(1, new List<CollectionEvent> {
+            ack = await _client.Function.S2F35LinkEventReport(1, new List<CollectionEvent> {
                 new() {
                     Id = 1,
                     CollectionReports = new List<CollectionReport>
@@ -280,7 +280,7 @@ namespace SecsGem.NetCore.Test.Test
             });
             Assert.That(ack, Is.EqualTo(SECS_RESPONSE.LRACK.OneOrMoreRptidInvalid));
 
-            ack = await _client.Function.CollectionReportLink(1, new List<CollectionEvent> {
+            ack = await _client.Function.S2F35LinkEventReport(1, new List<CollectionEvent> {
                 new() {
                     Id = 1,
                     CollectionReports = new List<CollectionReport>
@@ -293,7 +293,7 @@ namespace SecsGem.NetCore.Test.Test
             });
             Assert.That(ack, Is.EqualTo(SECS_RESPONSE.LRACK.OneOrMoreCeidAlreadyDefined));
 
-            ack = await _client.Function.CollectionReportLink(1, new List<CollectionEvent> {
+            ack = await _client.Function.S2F35LinkEventReport(1, new List<CollectionEvent> {
                 new() {
                     Id = 1,
                     CollectionReports = new List<CollectionReport>
@@ -338,7 +338,7 @@ namespace SecsGem.NetCore.Test.Test
                 }
             };
 
-            await _server.Function.SendCollectionEvent(1);
+            await _server.Function.S6F11EventReportSend(1);
 
             Assert.That(ce, Is.Not.Null);
             Assert.That(ce.CollectionReports, Has.Count.EqualTo(2));

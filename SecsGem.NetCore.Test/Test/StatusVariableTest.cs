@@ -22,8 +22,8 @@ namespace SecsGem.NetCore.Test.Test
         [Test]
         public async Task Get_Status_Variable()
         {
-            var svs = await _client.Function.StatusVariableDefinitionGet();
-            var values = await _client.Function.StatusVariableValueGet(new uint[] { 1 });
+            var svs = await _client.Function.S1F11StatusVariableNamelistRequest();
+            var values = await _client.Function.S1F3SelectedEquipmentStatusRequest(new uint[] { 1 });
 
             Assert.That(svs.Count(), Is.EqualTo(1));
             Assert.That(values.Count(), Is.EqualTo(1));
@@ -54,8 +54,8 @@ namespace SecsGem.NetCore.Test.Test
                 }
             };
 
-            var svs = await _client.Function.StatusVariableDefinitionGet();
-            var values = await _client.Function.StatusVariableValueGet(new uint[] { 1 });
+            var svs = await _client.Function.S1F11StatusVariableNamelistRequest();
+            var values = await _client.Function.S1F3SelectedEquipmentStatusRequest(new uint[] { 1 });
 
             Assert.That(svs.Count(), Is.EqualTo(1));
             Assert.That(values.Count(), Is.EqualTo(1));

@@ -62,20 +62,20 @@ namespace SecsGem.NetCore.Test.Test
         [Test]
         public async Task Terminal_Display_Response()
         {
-            Assert.That(await _client.Function.SendTerminal(1, "Accepted"), Is.EqualTo(SECS_RESPONSE.ACKC10.Accepted));
-            Assert.That(await _client.Function.SendTerminal(2, "Accepted"), Is.EqualTo(SECS_RESPONSE.ACKC10.NotAvailable));
-            Assert.That(await _client.Function.SendTerminal(1, "WillNotBeDisplayed"), Is.EqualTo(SECS_RESPONSE.ACKC10.WillNotBeDisplayed));
+            Assert.That(await _client.Function.S10F3TerminalDisplaySingle(1, "Accepted"), Is.EqualTo(SECS_RESPONSE.ACKC10.Accepted));
+            Assert.That(await _client.Function.S10F3TerminalDisplaySingle(2, "Accepted"), Is.EqualTo(SECS_RESPONSE.ACKC10.NotAvailable));
+            Assert.That(await _client.Function.S10F3TerminalDisplaySingle(1, "WillNotBeDisplayed"), Is.EqualTo(SECS_RESPONSE.ACKC10.WillNotBeDisplayed));
 
             var texts = new List<string> { "Accepted", "Test" };
-            Assert.That(await _client.Function.SendTerminalMulti(1, texts), Is.EqualTo(SECS_RESPONSE.ACKC10.Accepted));
+            Assert.That(await _client.Function.S10F5TerminalDisplayMultiBlock(1, texts), Is.EqualTo(SECS_RESPONSE.ACKC10.Accepted));
             Assert.That(ServerEvent.Texts, Is.EquivalentTo(texts));
 
-            Assert.That(await _client.Function.SendTerminalBroadcast("Accepted"), Is.EqualTo(SECS_RESPONSE.ACKC10.Accepted));
+            Assert.That(await _client.Function.S10F9Broadcast("Accepted"), Is.EqualTo(SECS_RESPONSE.ACKC10.Accepted));
             Assert.That(ServerEvent.IsBroadcast, Is.True);
 
-            Assert.That(await _server.Function.SendTerminal(1, "Accepted"), Is.EqualTo(SECS_RESPONSE.ACKC10.Accepted));
-            Assert.That(await _server.Function.SendTerminal(2, "Accepted"), Is.EqualTo(SECS_RESPONSE.ACKC10.NotAvailable));
-            Assert.That(await _server.Function.SendTerminal(1, "WillNotBeDisplayed"), Is.EqualTo(SECS_RESPONSE.ACKC10.WillNotBeDisplayed));
+            Assert.That(await _server.Function.S10F1TerminalRequest(1, "Accepted"), Is.EqualTo(SECS_RESPONSE.ACKC10.Accepted));
+            Assert.That(await _server.Function.S10F1TerminalRequest(2, "Accepted"), Is.EqualTo(SECS_RESPONSE.ACKC10.NotAvailable));
+            Assert.That(await _server.Function.S10F1TerminalRequest(1, "WillNotBeDisplayed"), Is.EqualTo(SECS_RESPONSE.ACKC10.WillNotBeDisplayed));
         }
     }
 }

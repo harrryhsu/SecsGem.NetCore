@@ -14,27 +14,27 @@ namespace SecsGem.NetCore.Test.Test
         {
             await AssertEx.ThrowAsync<SecsGemTransactionException>(async () =>
             {
-                var ecs = await _client.Function.EquipmentConstantDefinitionGet();
+                var ecs = await _client.Function.S2F29EquipmentConstantNamelistRequest();
             });
 
-            await _client.Function.ControlOnline();
+            await _client.Function.S1F17RequestOnline();
             await _server.Function.GoOnlineLocal();
 
             await AssertEx.DoesNotThrowAsync(async () =>
             {
-                var ecs = await _client.Function.EquipmentConstantDefinitionGet();
+                var ecs = await _client.Function.S2F29EquipmentConstantNamelistRequest();
             });
 
             await AssertEx.ThrowAsync<SecsGemTransactionException>(async () =>
             {
-                var ecs = await _client.Function.ServerTimeSet(DateTime.Now);
+                var ecs = await _client.Function.S2F31DateAndTimeSetRequest(DateTime.Now);
             });
 
             await _server.Function.GoOnlineRemote();
 
             await AssertEx.DoesNotThrowAsync(async () =>
             {
-                var ecs = await _client.Function.ServerTimeSet(DateTime.Now);
+                var ecs = await _client.Function.S2F31DateAndTimeSetRequest(DateTime.Now);
             });
         }
     }

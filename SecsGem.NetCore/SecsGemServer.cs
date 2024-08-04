@@ -166,7 +166,7 @@ namespace SecsGem.NetCore
                         case GemServerStateModel.Selected:
                             if (_option.ActiveConnect)
                             {
-                                var success = await Function.CommunicationEstablish(_cts.Token);
+                                var success = await Function.S1F13EstablishCommunicationRequest(_cts.Token);
                                 if (success)
                                 {
                                     _option.DebugLog("Communication Established");

@@ -26,7 +26,7 @@ namespace SecsGem.NetCore.Function
         /// <returns>If state transition succeeded</returns>
         /// <exception cref="SecsGemConnectionException"></exception>
         /// <exception cref="SecsGemTransactionException"></exception>
-        public async Task<bool> CommunicationEstablish(CancellationToken ct = default)
+        public async Task<bool> S1F13EstablishCommunicationRequest(CancellationToken ct = default)
         {
             var reply = await _tcp.SendAndWaitForReplyAsync(
                 HsmsMessage.Builder
@@ -59,7 +59,7 @@ namespace SecsGem.NetCore.Function
         /// <exception cref="SecsGemInvalidOperationException"></exception>
         /// <exception cref="SecsGemConnectionException"></exception>
         /// <exception cref="SecsGemTransactionException"></exception>
-        public async Task TriggerAlarm(uint id, CancellationToken ct = default)
+        public async Task S5F1AlarmReportSend(uint id, CancellationToken ct = default)
         {
             var alarm = _kernel.Feature.Alarms.FirstOrDefault(x => x.Id == id);
             if (alarm == null) throw new SecsGemException("Id not found");
@@ -88,7 +88,7 @@ namespace SecsGem.NetCore.Function
         /// <exception cref="SecsGemInvalidOperationException"></exception>
         /// <exception cref="SecsGemConnectionException"></exception>
         /// <exception cref="SecsGemTransactionException"></exception>
-        public async Task<SECS_RESPONSE.ACKC10> SendTerminal(byte id, string text, CancellationToken ct = default)
+        public async Task<SECS_RESPONSE.ACKC10> S10F1TerminalRequest(byte id, string text, CancellationToken ct = default)
         {
             if (!_kernel.State.IsReadable) throw new SecsGemInvalidOperationException();
 
@@ -115,7 +115,7 @@ namespace SecsGem.NetCore.Function
         /// <exception cref="SecsGemInvalidOperationException"></exception>
         /// <exception cref="SecsGemConnectionException"></exception>
         /// <exception cref="SecsGemTransactionException"></exception>
-        public async Task SendCollectionEvent(uint id, CancellationToken ct = default)
+        public async Task S6F11EventReportSend(uint id, CancellationToken ct = default)
         {
             if (!_kernel.State.IsReadable) throw new SecsGemInvalidOperationException();
 
@@ -158,9 +158,9 @@ namespace SecsGem.NetCore.Function
         /// <exception cref="SecsGemInvalidOperationException"></exception>
         /// <exception cref="SecsGemConnectionException"></exception>
         /// <exception cref="SecsGemTransactionException"></exception>
-        public async Task NotifyException(string id, Exception ex, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default)
+        public async Task S5F9ExceptionPostNotify(string id, Exception ex, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default)
         {
-            await NotifyException(id, ex.GetType().Name, ex.Message, recoveryMessage, timestamp, ct);
+            await S5F9ExceptionPostNotify(id, ex.GetType().Name, ex.Message, recoveryMessage, timestamp, ct);
         }
 
         /// <summary>
@@ -169,7 +169,7 @@ namespace SecsGem.NetCore.Function
         /// <exception cref="SecsGemInvalidOperationException"></exception>
         /// <exception cref="SecsGemConnectionException"></exception>
         /// <exception cref="SecsGemTransactionException"></exception>
-        public async Task NotifyException(string id, string type, string message, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default)
+        public async Task S5F9ExceptionPostNotify(string id, string type, string message, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default)
         {
             if (!_kernel.State.IsReadable) throw new SecsGemInvalidOperationException();
             if (timestamp == default) timestamp = DateTime.Now;
@@ -238,9 +238,9 @@ namespace SecsGem.NetCore.Function
         /// <returns>HSMS message response</returns>
         /// <exception cref="SecsGemConnectionException"></exception>
         /// <exception cref="SecsGemTransactionException"></exception>
-        public async Task<HsmsMessage> Send(HsmsMessage message, CancellationToken ct = default)
+        public Task<HsmsMessage> Send(HsmsMessage message, CancellationToken ct = default)
         {
-            return await _tcp.SendAndWaitForReplyAsync(message, ct);
+            return _tcp.SendAndWaitForReplyAsync(message, ct);
         }
     }
 }

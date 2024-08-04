@@ -17,11 +17,7 @@ namespace SecsGem.NetCore.Handler.Server
                 HsmsMessage.Builder
                     .Reply(Context.Message)
                     .Item(new ListDataItem(
-                        new BinDataItem(res),
-                        new ListDataItem(
-                            new ADataItem(Context.Kernel.Device.Model),
-                            new ADataItem(Context.Kernel.Device.Revision)
-                        )
+                        new BinDataItem(res)
                     ))
                     .Build()
             );

@@ -19,7 +19,7 @@ namespace SecsGem.NetCore.Test.Test
         [Test]
         public async Task Command_Send()
         {
-            var ack = await _client.Function.CommandSend("TEST1", new Dictionary<string, string> { });
+            var ack = await _client.Function.S2F41HostCommandSend("TEST1", new Dictionary<string, string> { });
             Assert.That(ack, Is.EqualTo(SECS_RESPONSE.HCACK.InvalidCommand));
 
             var testVal = "1";
@@ -34,7 +34,7 @@ namespace SecsGem.NetCore.Test.Test
                 }
             };
 
-            ack = await _client.Function.CommandSend("TEST", new Dictionary<string, string> { { "Key", "2" } });
+            ack = await _client.Function.S2F41HostCommandSend("TEST", new Dictionary<string, string> { { "Key", "2" } });
             Assert.That(ack, Is.EqualTo(SECS_RESPONSE.HCACK.Ok));
             Assert.That(testVal, Is.EqualTo("2"));
         }

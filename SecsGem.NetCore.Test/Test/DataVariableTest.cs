@@ -16,7 +16,7 @@ namespace SecsGem.NetCore.Test.Test
             };
             _server.Feature.DataVariables.Add(v);
 
-            var vs = await _client.Function.DataVariableDefinitionGet();
+            var vs = await _client.Function.S1F21DataVariableNamelistRequest();
 
             Assert.That(vs.Count(), Is.EqualTo(1));
 

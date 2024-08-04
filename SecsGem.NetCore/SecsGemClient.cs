@@ -143,7 +143,7 @@ namespace SecsGem.NetCore
                             {
                                 if (_option.ActiveConnect)
                                 {
-                                    var success = await Function.CommunicationEstablish(_cts.Token);
+                                    var success = await Function.S1F13EstablishCommunicationsRequest(_cts.Token);
                                     if (success)
                                     {
                                         _option.DebugLog("Communication Established");

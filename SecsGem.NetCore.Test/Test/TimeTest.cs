@@ -7,7 +7,7 @@ namespace SecsGem.NetCore.Test.Test
         [Test]
         public async Task Get_Time()
         {
-            var timeStr = await _client.Function.ServerTimeGet();
+            var timeStr = await _client.Function.S2F17DateAndTimeRequest();
             var success = DateTime.TryParse(timeStr, out var serverTime);
             Assert.That(success, Is.True);
             Assert.That(serverTime - DateTime.Now, Is.LessThan(TimeSpan.FromSeconds(1)));
@@ -29,11 +29,11 @@ namespace SecsGem.NetCore.Test.Test
                 }
             };
 
-            var success = await _client.Function.ServerTimeSet("test");
+            var success = await _client.Function.S2F31DateAndTimeSetRequest("test");
             Assert.That(success, Is.False);
             Assert.That(serverTime, Is.EqualTo(DateTime.MinValue));
 
-            success = await _client.Function.ServerTimeSet(DateTime.Now);
+            success = await _client.Function.S2F31DateAndTimeSetRequest(DateTime.Now);
             Assert.That(success, Is.True);
             Assert.That(serverTime - DateTime.Now, Is.LessThan(TimeSpan.FromSeconds(1)));
         }

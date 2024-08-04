@@ -49,7 +49,7 @@ namespace SecsGem.NetCore.Test
 
         protected virtual async Task AfterSetup()
         {
-            await _client.Function.ControlOnline();
+            await _client.Function.S1F17RequestOnline();
         }
 
         [TearDown]

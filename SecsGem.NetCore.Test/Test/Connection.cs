@@ -79,7 +79,7 @@ namespace SecsGem.NetCore.Test.Test
                 await _server.State.WaitForState(GemServerStateModel.ControlOffLine);
             });
 
-            await _client.Function.CommunicationEstablish();
+            await _client.Function.S1F13EstablishCommunicationsRequest();
             Assert.That(_client.State.Current, Is.EqualTo(GemClientStateModel.ControlOffLine));
         }
 
@@ -108,7 +108,7 @@ namespace SecsGem.NetCore.Test.Test
                 await _client.State.WaitForState(GemClientStateModel.ControlOffLine);
                 await _server.State.WaitForState(GemServerStateModel.ControlOffLine);
             });
-            var ack = await _client.Function.ControlOnline();
+            var ack = await _client.Function.S1F17RequestOnline();
             Assert.Multiple(() =>
             {
                 Assert.That(ack, Is.True);
@@ -137,7 +137,7 @@ namespace SecsGem.NetCore.Test.Test
 
             await AssertEx.ThrowAsync<SecsGemConnectionException>(async () =>
             {
-                await _client.Function.IsControlOnline();
+                await _client.Function.S1F1AreYouOnline();
             });
 
             await _client.ConnectAsync();
@@ -147,7 +147,7 @@ namespace SecsGem.NetCore.Test.Test
                 await _server.State.WaitForState(GemServerStateModel.ControlOffLine);
             });
 
-            Assert.That(await _client.Function.IsControlOnline(), Is.False);
+            Assert.That(await _client.Function.S1F1AreYouOnline(), Is.False);
         }
     }
 }

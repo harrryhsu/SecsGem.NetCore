@@ -12,7 +12,7 @@ namespace SecsGem.NetCore.Test.Test
         [Test]
         public async Task Allowed_State_Change()
         {
-            var success = await _client.Function.ControlOnline();
+            var success = await _client.Function.S1F17RequestOnline();
 
             Assert.Multiple(() =>
             {
@@ -35,7 +35,7 @@ namespace SecsGem.NetCore.Test.Test
                 }
             };
 
-            var success = await _client.Function.ControlOnline();
+            var success = await _client.Function.S1F17RequestOnline();
 
             Assert.Multiple(() =>
             {
