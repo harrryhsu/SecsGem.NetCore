@@ -102,7 +102,7 @@ namespace SecsGem.NetCore.Function
             }
         }
 
-        public async Task<bool> IsEquipmentControlOnline(CancellationToken ct = default)
+        public async Task<bool> IsControlOnline(CancellationToken ct = default)
         {
             try
             {

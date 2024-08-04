@@ -1,3 +1,4 @@
+using SecsGem.NetCore.Error;
 using SecsGem.NetCore.State.Client;
 using SecsGem.NetCore.State.Server;
 using SecsGem.NetCore.Test.Helper;
@@ -114,6 +115,39 @@ namespace SecsGem.NetCore.Test.Test
                 Assert.That(_client.State.Current, Is.EqualTo(GemClientStateModel.ControlOnline));
                 Assert.That(_server.State.Current, Is.EqualTo(GemServerStateModel.ControlOnlineRemote));
             });
+        }
+
+        [Test]
+        public async Task Reconnect()
+        {
+            await Init(true, false);
+            await AssertEx.DoesNotThrowAsync(async () =>
+            {
+                await _client.State.WaitForState(GemClientStateModel.ControlOffLine);
+                await _server.State.WaitForState(GemServerStateModel.ControlOffLine);
+            });
+
+            await _client.DisposeAsync();
+
+            await AssertEx.DoesNotThrowAsync(async () =>
+            {
+                await _client.State.WaitForState(GemClientStateModel.Disconnected);
+                await _server.State.WaitForState(GemServerStateModel.Disconnected);
+            });
+
+            await AssertEx.ThrowAsync<SecsGemConnectionException>(async () =>
+            {
+                await _client.Function.IsControlOnline();
+            });
+
+            await _client.ConnectAsync();
+            await AssertEx.DoesNotThrowAsync(async () =>
+            {
+                await _client.State.WaitForState(GemClientStateModel.ControlOffLine);
+                await _server.State.WaitForState(GemServerStateModel.ControlOffLine);
+            });
+
+            Assert.That(await _client.Function.IsControlOnline(), Is.False);
         }
     }
 }

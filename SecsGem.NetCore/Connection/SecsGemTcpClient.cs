@@ -14,8 +14,6 @@ namespace SecsGem.NetCore.Connection
     {
         protected List<TcpConnection> _clients = new();
 
-        protected readonly CancellationTokenSource _cts = new();
-
         protected readonly ConcurrentDictionary<uint, ReplyTask> _query = new();
 
         public bool Online { get; protected set; }
@@ -25,6 +23,8 @@ namespace SecsGem.NetCore.Connection
         public event OnSecsErrorEventHandler OnSecsError;
 
         protected readonly SecsGemOption _option;
+
+        protected CancellationTokenSource _cts = new();
 
         public SecsGemTcpClient(SecsGemOption option)
         {
@@ -45,6 +45,8 @@ namespace SecsGem.NetCore.Connection
         public async Task<TcpConnection> ConnectAsync(CancellationToken cts = default)
         {
             var tcp = new TcpClient();
+            _cts = new();
+
             try
             {
                 await tcp.ConnectAsync(_option.Target, cts);

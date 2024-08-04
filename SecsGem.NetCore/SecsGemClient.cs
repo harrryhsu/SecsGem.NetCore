@@ -23,8 +23,6 @@ namespace SecsGem.NetCore
 
         public event SecsGemClientEventHandler OnEvent;
 
-        private readonly CancellationTokenSource _cts = new();
-
         internal readonly SecsGemOption _option;
 
         internal readonly SecsGemTcpClient _tcp;
@@ -32,6 +30,8 @@ namespace SecsGem.NetCore
         private readonly AsyncExecutionLock _lock = new();
 
         private TcpConnection _host;
+
+        private CancellationTokenSource _cts = new();
 
         public SecsGemClient(SecsGemOption option)
         {
@@ -118,8 +118,6 @@ namespace SecsGem.NetCore
 
         private async Task SecsGemClientWorker()
         {
-            await State.TriggerAsync(GemClientStateTrigger.Connect, true);
-
             try
             {
                 while (!_cts.IsCancellationRequested && _tcp.Online)
@@ -208,7 +206,9 @@ namespace SecsGem.NetCore
 
         public async Task ConnectAsync(CancellationToken ct = default)
         {
+            _cts = new();
             await _tcp.ConnectAsync(ct);
+            await State.TriggerAsync(GemClientStateTrigger.Connect, true);
             _ = Task.Run(() => SecsGemClientWorker(), ct);
         }
 
@@ -216,7 +216,6 @@ namespace SecsGem.NetCore
         {
             _cts.Cancel();
             await Function.Separate();
-            await Disconnect();
             _tcp.Dispose();
         }
     }
