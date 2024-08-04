@@ -176,33 +176,35 @@ The event handler will define all interation the equipment needed to operate Sec
 
 SecsGem.Function provides active methods that you can use to send event to host, the method will throw if there is a tcp error or invalid state.
 
+All function's spec and naming are from [Hume software](http://www.hume.com/secs/)
+
     /// <summary>
     /// S1F13 Establish communication to transition into control offline state
     /// </summary>
     /// <returns>If state transition succeeded</returns>
-    public async Task<bool> CommunicationEstablish(CancellationToken ct = default);
+    public async Task<bool> S1F13EstablishCommunicationRequest(CancellationToken ct = default);
 
     /// <summary>
     /// S5F1 Trigger alarm, message is only sent if kernel state is readable and alarm is enabled
     /// </summary>
-    Task<bool> TriggerAlarm(uint id, CancellationToken ct = default);
+    Task<bool> S5F1AlarmReportSend(uint id, CancellationToken ct = default);
 
     /// <summary>
     /// S10F1 Send single line terminal display
     /// </summary>
     /// <returns>Terminal display result</returns>
-    public async Task<SECS_RESPONSE.ACKC10> SendTerminal(byte id, string text, CancellationToken ct = default);
+    public async Task<SECS_RESPONSE.ACKC10> S10F1TerminalRequest(byte id, string text, CancellationToken ct = default);
 
     /// <summary>
     /// S6F11 Send collection event, SecsGemGetDataVariableEvent is triggered to populate the collection event data variables
     /// </summary>
-    public async Task SendCollectionEvent(uint id, CancellationToken ct = default);
+    public async Task S6F11EventReportSend(uint id, CancellationToken ct = default);
 
     /// <summary>
     /// S5F9 Notify host of an equipment exception
     /// </summary>
-    Task<bool> NotifyException(string id, Exception ex, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default);
-    Task<bool> NotifyException(string id, string type, string message, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default);
+    Task<bool> S5F9ExceptionPostNotify(string id, Exception ex, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default);
+    Task<bool> S5F9ExceptionPostNotify(string id, string type, string message, string recoveryMessage, DateTime timestamp = default, CancellationToken ct = default);
 
     /// <summary>
     /// Disconnect immediately
@@ -260,4 +262,4 @@ Client interface is developed for testing purpose, but the actual usage is also 
         }
     };
 
-    var ecs = await client.Function.EquipmentConstantValueGet();
+    var ecs = await client.Function.S2F29EquipmentConstantNamelistRequest();
