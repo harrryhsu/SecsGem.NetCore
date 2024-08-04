@@ -5,7 +5,9 @@ VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecsGem.NetCore", "SecsGem.NetCore\SecsGem.NetCore.csproj", "{2FE43F5D-A769-4E8F-8A97-F6CF20B1AB15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecsGem.NetCore.Test", "SecsGem.NetCore.Test\SecsGem.NetCore.Test.csproj", "{5155C236-5279-4DBD-8169-6C4B3B522C97}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecsGem.NetCore.Test", "SecsGem.NetCore.Test\SecsGem.NetCore.Test.csproj", "{5155C236-5279-4DBD-8169-6C4B3B522C97}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecsGem.NetCore.Example", "SecsGem.NetCore.Example\SecsGem.NetCore.Example.csproj", "{0B7ED1C6-D63F-47C1-8F31-AC6CB0D9B10E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,14 @@ Global
 		{5155C236-5279-4DBD-8169-6C4B3B522C97}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5155C236-5279-4DBD-8169-6C4B3B522C97}.Release|x64.ActiveCfg = Release|Any CPU
 		{5155C236-5279-4DBD-8169-6C4B3B522C97}.Release|x64.Build.0 = Release|Any CPU
+		{0B7ED1C6-D63F-47C1-8F31-AC6CB0D9B10E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B7ED1C6-D63F-47C1-8F31-AC6CB0D9B10E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B7ED1C6-D63F-47C1-8F31-AC6CB0D9B10E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0B7ED1C6-D63F-47C1-8F31-AC6CB0D9B10E}.Debug|x64.Build.0 = Debug|Any CPU
+		{0B7ED1C6-D63F-47C1-8F31-AC6CB0D9B10E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B7ED1C6-D63F-47C1-8F31-AC6CB0D9B10E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B7ED1C6-D63F-47C1-8F31-AC6CB0D9B10E}.Release|x64.ActiveCfg = Release|Any CPU
+		{0B7ED1C6-D63F-47C1-8F31-AC6CB0D9B10E}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
