@@ -118,5 +118,9 @@ namespace SecsGem.NetCore.Example
         public async Task OrphanMessage(SecsGemServerOrphanMessageEvent evt)
         {
         }
+
+        public async Task Message(SecsGemMessageEvent evt)
+        {
+        }
     }
 }

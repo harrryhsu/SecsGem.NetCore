@@ -44,6 +44,12 @@ namespace SecsGem.NetCore.Event.Client
         /// Error event for any SecsGem or HSMS exception
         /// </summary>
         Task Error(SecsGemErrorEvent evt);
+
+        /// <summary>
+        /// Triggered when a hsms message is received
+        /// </summary>
+        /// <param name="evt"></param>
+        Task Message(SecsGemMessageEvent evt);
     }
 
     public class SecsGemClientEventExecuter
@@ -85,6 +91,10 @@ namespace SecsGem.NetCore.Event.Client
 
                 case SecsGemEventType.Error:
                     await _handler.Error(e as SecsGemErrorEvent);
+                    break;
+
+                case SecsGemEventType.Message:
+                    await _handler.Message(e as SecsGemMessageEvent);
                     break;
             }
         }

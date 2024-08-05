@@ -49,6 +49,15 @@ namespace SecsGem.NetCore.Handler.Server.Handler.Message
                     var executor = Activator.CreateInstance(handler.HandlerType) as SecsGemClientStreamHandler;
                     executor.Context = Context;
                     await executor.Execute();
+
+                    if (!Context.HasReplied)
+                    {
+                        await Error(HsmsErrorCode.IllegalData);
+                        await Context.Kernel.Emit(new SecsGemErrorEvent
+                        {
+                            Message = $"SecsGemStreamHandler ${handler.GetType().AssemblyQualifiedName} does not reply to the message"
+                        });
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -62,7 +71,15 @@ namespace SecsGem.NetCore.Handler.Server.Handler.Message
             }
             else
             {
-                await Error(HsmsErrorCode.UnrecognizedFunction);
+                await Context.Kernel.Emit(new SecsGemClientOrphanMessageEvent
+                {
+                    Params = Context,
+                });
+
+                if (!Context.HasReplied)
+                {
+                    await Error(HsmsErrorCode.UnrecognizedFunction);
+                }
             }
         }
     }

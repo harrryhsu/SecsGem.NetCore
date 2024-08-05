@@ -148,7 +148,7 @@ namespace SecsGem.NetCore.Connection
                 if (msg.Header.SType == HsmsMessageType.DataMessage && msg.Header.F == 0)
                 {
                     _option.DebugLog($"Message is aborted {reply.Header.SType} {reply}");
-                    await EmitException(new SecsGemTransactionException($"Message is aborted {reply.Header.SType} {reply}") { Code = "abort" });
+                    await EmitException(new SecsGemTransactionException(reply, $"Message is aborted {reply.Header.SType} {reply}") { Code = "abort" });
                     return null;
                 }
                 else if (msg.Header.SType == HsmsMessageType.DataMessage && (
@@ -158,7 +158,7 @@ namespace SecsGem.NetCore.Connection
                 ))
                 {
                     _option.DebugLog($"WAIT {msg.Header.SType} {msg}, Unexpected reply {reply.Header.SType} {reply}");
-                    await EmitException(new SecsGemTransactionException($"Unexpected Reply: {reply.Header.SType} {reply}") { Code = "unexpected_reply" });
+                    await EmitException(new SecsGemTransactionException(reply, $"Unexpected Reply: {reply.Header.SType} {reply}") { Code = "unexpected_reply" });
                     return null;
                 }
                 else
@@ -169,7 +169,7 @@ namespace SecsGem.NetCore.Connection
             catch (TimeoutException)
             {
                 _option.DebugLog($"WAIT {msg.Header.SType} {msg}, Timeout");
-                await EmitException(new SecsGemTransactionException("Wait For Reply Timeout") { Code = "reply_timeout" });
+                await EmitException(new SecsGemConnectionException("Wait For Reply Timeout") { Code = "reply_timeout" });
                 return null;
             }
             catch (ObjectDisposedException)

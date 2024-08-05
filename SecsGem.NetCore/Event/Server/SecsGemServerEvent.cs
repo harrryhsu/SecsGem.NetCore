@@ -85,6 +85,12 @@ namespace SecsGem.NetCore.Event.Server
         /// </summary>
         /// <param name="evt"></param>
         Task DataChange(SecsGemDataChangeEvent evt);
+
+        /// <summary>
+        /// Triggered when a hsms message is received
+        /// </summary>
+        /// <param name="evt"></param>
+        Task Message(SecsGemMessageEvent evt);
     }
 
     public class SecsGemServerEventExecuter
@@ -150,6 +156,10 @@ namespace SecsGem.NetCore.Event.Server
 
                 case SecsGemEventType.DataChange:
                     await _handler.DataChange(e as SecsGemDataChangeEvent);
+                    break;
+
+                case SecsGemEventType.Message:
+                    await _handler.Message(e as SecsGemMessageEvent);
                     break;
             }
         }

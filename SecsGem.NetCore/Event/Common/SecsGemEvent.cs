@@ -33,6 +33,8 @@
         NotifyException,
 
         DataChange,
+
+        Message,
     }
 
     public abstract class SecsGemEvent
