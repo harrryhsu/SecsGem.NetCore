@@ -32,7 +32,7 @@ namespace SecsGem.NetCore.Hsms
 
         public override string ToString()
         {
-            return $"Q{Header.Context >> 24}-S{Header.S}F{Header.F}";
+            return $"{Header.SType} Q{Header.Context >> 24}-S{Header.S}F{Header.F}";
         }
     }
 }
