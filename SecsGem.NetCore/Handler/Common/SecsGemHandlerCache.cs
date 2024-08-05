@@ -7,7 +7,15 @@ namespace SecsGem.NetCore.Handler.Common
     {
         public Type HandlerType { get; set; }
 
-        public abstract bool IsMatch(HsmsMessage message, bool IsRequest);
+        public virtual bool IsMatch(HsmsMessageType type)
+        {
+            return false;
+        }
+
+        public virtual bool IsMatch(byte s, byte f)
+        {
+            return false;
+        }
     }
 
     [DebuggerDisplay("{FunctionType} S{Stream}F{Function}")]
@@ -19,11 +27,9 @@ namespace SecsGem.NetCore.Handler.Common
 
         public int Function { get; set; }
 
-        public override bool IsMatch(HsmsMessage message, bool IsRequest)
+        public override bool IsMatch(byte s, byte f)
         {
-            return !IsRequest &&
-                Stream == message.Header.S &&
-                Function == message.Header.F;
+            return Stream == s && Function == f;
         }
     }
 
@@ -32,9 +38,9 @@ namespace SecsGem.NetCore.Handler.Common
     {
         public HsmsMessageType MessageType { get; set; }
 
-        public override bool IsMatch(HsmsMessage message, bool IsRequest)
+        public override bool IsMatch(HsmsMessageType type)
         {
-            return IsRequest && MessageType == message.Header.SType;
+            return MessageType == type;
         }
     }
 }

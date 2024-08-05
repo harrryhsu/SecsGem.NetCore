@@ -3,11 +3,11 @@ namespace SecsGem.NetCore.Handler.Common
     [AttributeUsage(AttributeTargets.Class)]
     public class SecsGemStreamAttribute : Attribute
     {
-        public int Stream { get; set; }
+        public byte Stream { get; set; }
 
-        public int Function { get; set; }
+        public byte Function { get; set; }
 
-        public SecsGemStreamAttribute(int stream, int function)
+        public SecsGemStreamAttribute(byte stream, byte function)
         {
             Stream = stream;
             Function = function;

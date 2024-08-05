@@ -36,6 +36,12 @@ namespace SecsGem.NetCore.Handler.Common
 
             if (messageAttr != null)
             {
+                var handler = _handlers.FirstOrDefault(x => x.IsMatch(messageAttr.Type));
+                if (handler != null)
+                {
+                    _handlers.Remove(handler);
+                }
+
                 _handlers.Add(new SecsGemRequestHandlerCache
                 {
                     HandlerType = type,
@@ -47,6 +53,12 @@ namespace SecsGem.NetCore.Handler.Common
                 if (functionAttr == null || streamAttr == null)
                 {
                     throw new SecsGemException($"[{type}] Missing attribute");
+                }
+
+                var handler = _handlers.FirstOrDefault(x => x.IsMatch(streamAttr.Stream, streamAttr.Function));
+                if (handler != null)
+                {
+                    _handlers.Remove(handler);
                 }
 
                 _handlers.Add(new SecsGemStreamHandlerCache
@@ -70,7 +82,7 @@ namespace SecsGem.NetCore.Handler.Common
                 Kernel = kernel,
             };
 
-            var handler = _handlers.FirstOrDefault(x => x.IsMatch(context.Message, true));
+            var handler = _handlers.FirstOrDefault(x => x.IsMatch(message.Header.SType));
             if (handler != null)
             {
                 var executor = Activator.CreateInstance(handler.HandlerType) as SecsGemStreamHandler<TKernal>;

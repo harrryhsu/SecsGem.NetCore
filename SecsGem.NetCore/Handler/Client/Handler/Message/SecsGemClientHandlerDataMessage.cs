@@ -26,7 +26,7 @@ namespace SecsGem.NetCore.Handler.Server.Handler.Message
 
         public override async Task Execute()
         {
-            var handler = Context.Handlers.FirstOrDefault(x => x.IsMatch(Context.Message, false)) as SecsGemStreamHandlerCache;
+            var handler = Context.Handlers.FirstOrDefault(x => x.IsMatch(Context.Message.Header.S, Context.Message.Header.F)) as SecsGemStreamHandlerCache;
 
             if (Context.Message.Header.S == 9)
             {
