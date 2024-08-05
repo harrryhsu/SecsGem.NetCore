@@ -42,7 +42,7 @@ namespace SecsGem.NetCore.Test.Test
             {
                 if (evt is SecsGemServerOrphanMessageEvent nevt)
                 {
-                    var context = nevt.Params;
+                    var context = nevt.Context;
                     await context.ReplyAsync(
                         HsmsMessage.Builder
                             .Reply(context.Message)

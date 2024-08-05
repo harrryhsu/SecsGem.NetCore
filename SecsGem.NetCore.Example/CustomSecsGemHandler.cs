@@ -2,6 +2,7 @@
 using SecsGem.NetCore.Event.Common;
 using SecsGem.NetCore.Event.Server;
 using SecsGem.NetCore.Feature.Server;
+using SecsGem.NetCore.Hsms;
 
 namespace SecsGem.NetCore.Example
 {
@@ -117,10 +118,20 @@ namespace SecsGem.NetCore.Example
 
         public async Task OrphanMessage(SecsGemServerOrphanMessageEvent evt)
         {
+            var message = evt.Context.Message;
+            if (message.Header.SType == HsmsMessageType.DataMessage && message.Header.S == 11 && message.Header.F == 1)
+            {
+                await evt.Context.ReplyAsync(
+                    HsmsMessage.Builder
+                        .Reply(message)
+                        .Item(new BinDataItem(1)).Build()
+                );
+            }
         }
 
         public async Task Message(SecsGemMessageEvent evt)
         {
+            Console.WriteLine($"Received message {evt.Message}");
         }
     }
 }

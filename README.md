@@ -263,3 +263,38 @@ Client interface is developed for testing purpose, but the actual usage is also 
     };
 
     var ecs = await client.Function.S2F29EquipmentConstantNamelistRequest();
+
+## Message handler override
+
+HsmsMessage that is not handled by the default handler included in the package can be handled by the OrphanMessage event
+
+    public async Task OrphanMessage(SecsGemServerOrphanMessageEvent evt)
+    {
+        var message = evt.Context.Message;
+        if (message.Header.SType == HsmsMessageType.DataMessage && message.Header.S == 11 && message.Header.F == 1)
+        {
+            await evt.Context.ReplyAsync(
+                HsmsMessage.Builder
+                    .Reply(message)
+                    .Item(new BinDataItem(1)).Build()
+            );
+        }
+    }
+
+Or an additional handler can be registered to the kernel
+
+    [SecsGemStream(1, 1)]
+    [SecsGemFunctionType(SecsGemFunctionType.Communication)]
+    public class SecsGemServerHandlerS1F1Override : SecsGemServerStreamHandler
+    {
+        public override async Task Execute()
+        {
+            await Context.ReplyAsync(
+                HsmsMessage.Builder
+                    .Reply(Context.Message)
+                    .Item(new BinDataItem(1)).Build()
+            );
+        }
+    }
+
+    _server.Handler.Register<SecsGemServerHandlerS1F1Override>();

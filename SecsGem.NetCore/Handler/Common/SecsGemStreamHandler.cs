@@ -1,4 +1,5 @@
-﻿using SecsGem.NetCore.Connection;
+﻿using SecsGem.NetCore.Buffer;
+using SecsGem.NetCore.Connection;
 using SecsGem.NetCore.Hsms;
 
 namespace SecsGem.NetCore.Handler.Common
@@ -29,6 +30,22 @@ namespace SecsGem.NetCore.Handler.Common
             if (HasReplied) throw new NotImplementedException($"Replied has already been set: {Message}");
             await Client.SendAsync(Connection, msg);
             HasReplied = true;
+        }
+
+        public async Task Error(HsmsErrorCode code)
+        {
+            var writer = new ByteBufferWriter();
+            Message.Header.Write(writer);
+            var mhead = writer.ToMemory().ToArray().Skip(4).Take(10).ToArray();
+
+            await ReplyAsync(
+                HsmsMessage.Builder
+                    .Reply(Message)
+                    .Stream(9)
+                    .Func((byte)code)
+                    .Item(new BinDataItem(mhead))
+                    .Build()
+            );
         }
     }
 }

@@ -1,4 +1,3 @@
-using SecsGem.NetCore.Buffer;
 using SecsGem.NetCore.Event.Common;
 using SecsGem.NetCore.Handler.Common;
 using SecsGem.NetCore.Hsms;
@@ -8,22 +7,6 @@ namespace SecsGem.NetCore.Handler.Server.Handler.Message
     [SecsGemMessage(HsmsMessageType.DataMessage)]
     public class SecsGemClientHandlerDataMessage : SecsGemClientStreamHandler
     {
-        protected async Task Error(HsmsErrorCode code)
-        {
-            var writer = new ByteBufferWriter();
-            Context.Message.Header.Write(writer);
-            var mhead = writer.ToMemory().ToArray().Skip(4).Take(10).ToArray();
-
-            await Context.ReplyAsync(
-                HsmsMessage.Builder
-                    .Reply(Context.Message)
-                    .Stream(9)
-                    .Func((byte)code)
-                    .Item(new BinDataItem(mhead))
-                    .Build()
-            );
-        }
-
         public override async Task Execute()
         {
             var handler = Context.Handlers.FirstOrDefault(x => x.IsMatch(Context.Message.Header.S, Context.Message.Header.F)) as SecsGemStreamHandlerCache;
@@ -52,7 +35,7 @@ namespace SecsGem.NetCore.Handler.Server.Handler.Message
 
                     if (!Context.HasReplied)
                     {
-                        await Error(HsmsErrorCode.IllegalData);
+                        await Context.Error(HsmsErrorCode.IllegalData);
                         await Context.Kernel.Emit(new SecsGemErrorEvent
                         {
                             Message = $"SecsGemStreamHandler ${handler.GetType().AssemblyQualifiedName} does not reply to the message"
@@ -66,19 +49,19 @@ namespace SecsGem.NetCore.Handler.Server.Handler.Message
                         Message = $"Error while handling Contextuest {Context.Message}: {ex}",
                     });
 
-                    await Error(HsmsErrorCode.IllegalData);
+                    await Context.Error(HsmsErrorCode.IllegalData);
                 }
             }
             else
             {
                 await Context.Kernel.Emit(new SecsGemClientOrphanMessageEvent
                 {
-                    Params = Context,
+                    Context = Context,
                 });
 
                 if (!Context.HasReplied)
                 {
-                    await Error(HsmsErrorCode.UnrecognizedFunction);
+                    await Context.Error(HsmsErrorCode.UnrecognizedFunction);
                 }
             }
         }

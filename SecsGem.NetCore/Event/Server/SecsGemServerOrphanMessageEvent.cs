@@ -2,8 +2,10 @@
 
 namespace SecsGem.NetCore.Event.Common
 {
-    public class SecsGemServerOrphanMessageEvent : SecsGemEvent<SecsGemRequestContext<SecsGemServer>>
+    public class SecsGemServerOrphanMessageEvent : SecsGemEvent
     {
         public override SecsGemEventType Event => SecsGemEventType.OrphanMessage;
+
+        public SecsGemRequestContext<SecsGemServer> Context { get; set; }
     }
 }
