@@ -5,6 +5,6 @@ COPY . ./
 RUN dotnet restore
 RUN dotnet build -c Release --no-restore
 RUN dotnet test SecsGem.NetCore.Test -c Release --no-restore
-RUN dotnet pack -c Release --no-restore --no-build -o /sln/artifacts 
+RUN dotnet pack -c Release --no-restore --no-build -o /sln/artifacts SecsGem.NetCore
 
 ENTRYPOINT ["dotnet", "nuget", "push", "/sln/artifacts/*.nupkg", "--source", "https://api.nuget.org/v3/index.json"]
