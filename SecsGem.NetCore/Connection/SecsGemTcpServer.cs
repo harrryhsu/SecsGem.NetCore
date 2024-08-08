@@ -1,8 +1,6 @@
-﻿using SecsGem.NetCore;
-using SecsGem.NetCore.Connection;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 
-namespace TrafficCom.V3.Connection
+namespace SecsGem.NetCore.Connection
 {
     public delegate Task OnConnectionEventHandler(SecsGemTcpClient sender, TcpConnection con);
 

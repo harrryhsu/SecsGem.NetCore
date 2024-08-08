@@ -8,7 +8,6 @@ using SecsGem.NetCore.Handler.Server;
 using SecsGem.NetCore.Hsms;
 using SecsGem.NetCore.Mutex;
 using SecsGem.NetCore.State.Server;
-using TrafficCom.V3.Connection;
 
 namespace SecsGem.NetCore
 {

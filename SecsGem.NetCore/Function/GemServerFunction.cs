@@ -1,10 +1,10 @@
-﻿using SecsGem.NetCore.Enum;
+﻿using SecsGem.NetCore.Connection;
+using SecsGem.NetCore.Enum;
 using SecsGem.NetCore.Error;
 using SecsGem.NetCore.Event.Common;
 using SecsGem.NetCore.Event.Server;
 using SecsGem.NetCore.Hsms;
 using SecsGem.NetCore.State.Server;
-using TrafficCom.V3.Connection;
 
 namespace SecsGem.NetCore.Function
 {
